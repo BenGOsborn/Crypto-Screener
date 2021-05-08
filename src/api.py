@@ -21,7 +21,8 @@ class API:
 
             if request.ok:
                 form_data = request.json()
-                token_data += [(data['id'], data['symbol']) for data in form_data]
+                print(form_data)
+                token_data += [(data['id'], data['symbol'], data['name']) for data in form_data]
         
         return token_data[:num_symbols]
 
@@ -41,7 +42,7 @@ class API:
 if __name__ == "__main__":
     api = API()
 
-    symbol_ids = api.get_symbol_ids(10)
+    symbol_ids = api.get_token_data(10)
 
     for symbol_id in symbol_ids:
         print(symbol_id)
