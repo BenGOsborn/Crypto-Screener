@@ -3,34 +3,30 @@ from api import API
 
 # Now I also need some sort of threading function which can run through them synonomously and get the best ones?
 
-def moving_average(array, window):
-    mv_avg = np.convolve(array, np.ones(window), mode='valid') / window
+def moon_score(price_data):
+    price_rate_1 = price_data[1:] / price_data[:-1]
+    price_rate_1_rate = price_rate_1[1:] / price_rate_1[:-1]
 
-    return mv_avg
+    N_STEPS = 5
+    price_rate_n = price_data[N_STEPS:] / price_data[:-N_STEPS]
+    price_rate_n_rate = price_rate_n[N_STEPS:] / price_rate_n[:-N_STEPS]
 
-# Maybe it is just a better idea to rank by percent change over 10 minutes or something ??????????
-def preprocess(price_data):
-    WINDOW = 30 # Play with this
+    slope_1 = price_rate_1[-1]
+    concavity_1 = price_rate_1_rate[-1]
+    slope_n = price_rate_n[-1]
+    concavity_n = price_rate_n_rate[-1]
 
-    price_data_spliced = price_data[-60:] # For the purpose of visualizing the data
+    score = (slope_1 ** (0.4 * concavity_1)) * (slope_n ** (0.6 * concavity_n))
 
-    # Maybe instead do a moving average of the slopes?
+    print(f"slope_1: {slope_1}\nconcavity_1: {concavity_1}\nslope_n: {slope_n}\nconcavity_n: {concavity_n}\nscore: {score}")
 
-    minute_percent_change = 100 * (price_data_spliced[1:] - price_data_spliced[:-1]) / price_data_spliced[:-1]
-    mv_avg = moving_average(price_data_spliced, WINDOW)
-
-    percent_price_change = 100 * (mv_avg[1:] - mv_avg[:-1]) / mv_avg[:-1] # Derivative
-    percent_slope_change = 100 * (percent_price_change[1:] - percent_price_change[:-1]) / percent_price_change[:-1] # Concavity
-
-    # How can I make some sort of score from these?
-    return minute_percent_change[-1], percent_price_change[-1], percent_slope_change[-1]
+    return score
 
 def main():
     api = API()
 
     price_data = api.get_price_data("bitcoin")
-
-    print(preprocess(price_data))
+    score = moon_score(price_data)
 
 if __name__ == "__main__":
     main()
