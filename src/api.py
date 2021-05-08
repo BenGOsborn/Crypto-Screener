@@ -27,26 +27,30 @@ class API:
         
         return symbols[:num_symbols]
 
-    # THIS DOES NOT SUPPORT BINANCE SMART CHAIN COINS - POSSIBLY CHANGE THIS IN THE FUTURE
-    def get_price_data(self, symbol, interval=5, minutes_ago=60, symbol_counterpart="USD"):
-        since = (datetime.datetime.utcnow() - datetime.timedelta(minutes=minutes_ago)).timestamp()
+    # KRAKEN API DOES NOT YET SUPPORT BINANCE SMART CHAIN COINS - POSSIBLY CHANGE API IN THE FUTURE
+    # It appears this API doesnt work for half of these symbols - Im going to have to find a new API
+    def get_price_data(self, symbol, interval=5, symbol_counterpart="USD"):
         pair = symbol + symbol_counterpart
 
-        req_url = f"{self.__KRAKEN_URL}?pair={pair}&interval={interval}&since={since}"
+        req_url = f"{self.__KRAKEN_URL}?pair={pair}&interval={interval}" # By default interval returns the previous 60 hours worth of data
         request = self.__session.get(req_url) 
 
-        if request.ok:
+        try:
             form_json = request.json()
             price_history = np.array(list(form_json['result'].values())[0]).astype(np.float64)
 
-        return price_history
+            return price_history
+        
+        except:
+            return np.zeros((720, 8)) # This is the default size of the array
 
 if __name__ == "__main__":
     api = API()
 
-    symbols = api.get_symbols(20)
+    symbols = api.get_symbols(2000)[-1000:]
 
     for symbol in symbols:
         print(symbol)
         price_data = api.get_price_data(symbol)
-        print(price_data.shape)
+        print(price_data)
+        print()
