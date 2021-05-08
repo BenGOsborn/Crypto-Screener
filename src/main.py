@@ -10,15 +10,17 @@ def moving_average(array, window):
     return mv_avg
 
 def preprocess(price_data):
-    WINDOW = 15
+    WINDOW = 20
 
-    minute_percent_change = 100 * (price_data[1:] - price_data[:-1]) / price_data[:-1]
-    mv_avg = moving_average(price_data, WINDOW)
+    price_data_spliced = price_data[-60:]
+
+    minute_percent_change = 100 * (price_data_spliced[1:] - price_data_spliced[:-1]) / price_data_spliced[:-1]
+    mv_avg = moving_average(price_data_spliced, WINDOW)
 
     percent_price_change = 100 * (mv_avg[1:] - mv_avg[:-1]) / mv_avg[:-1] # Derivative
     percent_slope_change = 100 * (percent_price_change[1:] - percent_price_change[:-1]) / percent_price_change[:-1] # Concavity
 
-    plt.plot(price_data)
+    plt.plot(mv_avg)
     plt.show()
 
     # How can I make some sort of score from these?
@@ -27,7 +29,7 @@ def preprocess(price_data):
 def main():
     api = API()
 
-    price_data = api.get_price_data("bitcoin") # Be careful - this plot looks different than the one at https://www.coingecko.com/en/coins/bitcoin for some reason ????
+    price_data = api.get_price_data("bitcoin")
 
     print(preprocess(price_data))
 
