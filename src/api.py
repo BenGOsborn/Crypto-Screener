@@ -4,7 +4,7 @@ import numpy as np
 
 class API:
     def __init__(self):
-        self.__KRAKEN_URL = "https://api.kraken.com/0/public/OHLC"
+        self.__KRAKEN_URL = "https://api.kraken.com/0"
         self.__COINGECKO_URL = "https://api.coingecko.com/api/v3"
 
         self.__session = requests.Session()
@@ -32,7 +32,7 @@ class API:
     def get_price_data(self, symbol, interval=5, symbol_counterpart="USD"):
         pair = symbol + symbol_counterpart
 
-        req_url = f"{self.__KRAKEN_URL}?pair={pair}&interval={interval}" # By default interval returns the previous 60 hours worth of data
+        req_url = f"{self.__KRAKEN_URL}/public/OHLC?pair={pair}&interval={interval}" # By default interval returns the previous 60 hours worth of data
         request = self.__session.get(req_url) 
 
         try:
