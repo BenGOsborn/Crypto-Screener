@@ -16,7 +16,6 @@ def moon_score(price_data, n_steps=5):
     slope_n = price_rate_n[-1]
     concavity_n = price_rate_n_rate[-1]
 
-    # Do something with the powers of the moon score to take into consideration the steps giving more weight
     score = (slope_1 ** ((1 - (1 / np.math.sqrt(n_steps))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(n_steps)) * concavity_n))
 
     ret_dict = {"slope_1": slope_1, "concavity_1": concavity_1, "slope_n": slope_n, "concavity_n": concavity_n, "moon_score": score}
