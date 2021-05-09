@@ -2,17 +2,52 @@
 # Take code for splitting arrays from my previous project
 import os
 from api import API
+import threading
 
 class Monitor:
     def __init__(self, num_symbols):
-        self.__api = API()
-
         self.__stop_flag = [False]
         self.__num_symbols = num_symbols
 
         token_info = self.__api.get_token_info(num_symbols)
         self.__token_data = {info['id']: {"token_info": info, "price_data": ()} for info in token_info} # Now we can modify the data by the key itself
         self.__token_ids = [info['id'] for info in token_info]
+
+        self.__threads = []
+
+    @staticmethod
+    def moon_score(price_data):
+        price_rate_1 = price_data[1:] / price_data[:-1]
+        price_rate_1_rate = price_rate_1[1:] / price_rate_1[:-1]
+
+        N_STEPS = 5
+        price_rate_n = price_data[N_STEPS:] / price_data[:-N_STEPS]
+        price_rate_n_rate = price_rate_n[N_STEPS:] / price_rate_n[:-N_STEPS]
+
+        slope_1 = price_rate_1[-1]
+        concavity_1 = price_rate_1_rate[-1]
+        slope_n = price_rate_n[-1]
+        concavity_n = price_rate_n_rate[-1]
+
+        score = (slope_1 ** ((1 - (1 / np.math.sqrt(N_STEPS))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(N_STEPS)) * concavity_n))
+
+        return slope_1, concavity_1, slope_n, concavity_n, score
+
+    @staticmethod
+    def monitor_tokens(token_ids, token_data, stop_flag):
+        api = API()
+
+        while not stop_flag[0]:
+            for token_id in token_ids:
+                price_data = api.get_price_data(token_id)
+                price_data = Monitor.moon_score(price_data)
+                token_data[token_id]['price_data'] = price_data
+    
+    def stop(self):
+        self.__stop_flag = [True]
+
+        for thread in self.__threads:
+            thread.join()
 
     def run(self):
         num_cores = os.cpu_count()
@@ -40,7 +75,10 @@ class Monitor:
             for i in range(remainders):
                 groups.append(split_group2[i])
 
-        print(groups)
+        for group in groups:
+            thread = threading.Thread(target=Monitor.monitor_tokens, args=(group, self.__token_data, self.__stop_flag))
+            thread.start()
+            self.__threads.append(thread)
 
     def get_data(self, num_data):
         token_data = self.__token_data.copy()
