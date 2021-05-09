@@ -17,7 +17,7 @@ def moon_score(price_data, n_steps=5):
     concavity_n = price_rate_n_rate[-1]
 
     # Do something with the powers of the moon score to take into consideration the steps giving more weight
-    score = (slope_1 ** (0.4 * concavity_1)) * (slope_n ** (0.6 * concavity_n))
+    score = (slope_1 ** ((1 - (1 / np.math.sqrt(n_steps))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(n_steps)) * concavity_n))
 
     ret_dict = {"slope_1": slope_1, "concavity_1": concavity_1, "slope_n": slope_n, "concavity_n": concavity_n, "moon_score": score}
 
@@ -26,7 +26,7 @@ def moon_score(price_data, n_steps=5):
 def main():
     api = API()
 
-    price_data = api.get_price_data("bitcoin")
+    price_data = api.get_price_data("dogecoin")
     score = moon_score(price_data)
 
     print(score)
