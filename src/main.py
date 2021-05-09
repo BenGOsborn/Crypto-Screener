@@ -18,9 +18,7 @@ def moon_score(price_data):
 
     score = (slope_1 ** ((1 - (1 / np.math.sqrt(N_STEPS))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(N_STEPS)) * concavity_n))
 
-    ret_dict = {"slope_1": slope_1, "concavity_1": concavity_1, f"slope_{N_STEPS}": slope_n, f"concavity_{N_STEPS}": concavity_n, "moon_score": score}
-
-    return ret_dict
+    return slope_1, concavity_1, slope_n, concavity_n, score
 
 def main():
     api = API()
