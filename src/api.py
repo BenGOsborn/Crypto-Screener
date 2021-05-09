@@ -9,7 +9,7 @@ class API:
 
         self.__session = requests.Session()
 
-    def get_token_data(self, num_symbols):
+    def get_token_info(self, num_symbols):
         PER_PAGE = 250
         num_pages = (num_symbols - 1) // PER_PAGE + 1
 
@@ -21,8 +21,7 @@ class API:
 
             if request.ok:
                 form_data = request.json()
-                print(form_data)
-                token_data += [(data['id'], data['symbol'], data['name']) for data in form_data]
+                token_data += [{"id": data['id'], "symbol": data['symbol'], "name": data['name']} for data in form_data]
         
         return token_data[:num_symbols]
 
@@ -37,14 +36,13 @@ class API:
             return price_history[:, 1] # Only return the prices as a 1d array
         
         except:
-            return np.zeros(289) # This is the default size of the array - it will be used as blank
+            return np.zeros(289)  # This is the default size of the array - it will be used as blank
 
 if __name__ == "__main__":
     api = API()
 
-    symbol_ids = api.get_token_data(10)
+    token_info = api.get_token_info(10)
 
-    for symbol_id in symbol_ids:
-        print(symbol_id)
-        price_data = api.get_price_data(symbol_id)
-        print(price_data.shape)
+    for token in token_info:
+        print(token)
+        price_data = api.get_price_data(token['id'])

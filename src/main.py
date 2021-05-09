@@ -3,11 +3,11 @@ from api import API
 
 # Now I also need some sort of threading function which can run through them synonomously and get the best ones?
 
-def moon_score(price_data, n_steps=5):
+def moon_score(price_data):
     price_rate_1 = price_data[1:] / price_data[:-1]
     price_rate_1_rate = price_rate_1[1:] / price_rate_1[:-1]
 
-    N_STEPS = n_steps
+    N_STEPS = 5
     price_rate_n = price_data[N_STEPS:] / price_data[:-N_STEPS]
     price_rate_n_rate = price_rate_n[N_STEPS:] / price_rate_n[:-N_STEPS]
 
@@ -16,9 +16,9 @@ def moon_score(price_data, n_steps=5):
     slope_n = price_rate_n[-1]
     concavity_n = price_rate_n_rate[-1]
 
-    score = (slope_1 ** ((1 - (1 / np.math.sqrt(n_steps))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(n_steps)) * concavity_n))
+    score = (slope_1 ** ((1 - (1 / np.math.sqrt(N_STEPS))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(N_STEPS)) * concavity_n))
 
-    ret_dict = {"slope_1": slope_1, "concavity_1": concavity_1, "slope_n": slope_n, "concavity_n": concavity_n, "moon_score": score}
+    ret_dict = {"slope_1": slope_1, "concavity_1": concavity_1, f"slope_{N_STEPS}": slope_n, f"concavity_{N_STEPS}": concavity_n, "moon_score": score}
 
     return ret_dict
 
