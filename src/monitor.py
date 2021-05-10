@@ -8,7 +8,7 @@ class Monitor:
         self.__num_symbols = num_symbols
 
         token_info = self.__api.get_token_info(num_symbols)
-        self.__token_data = {info['id']: {"token_info": info, "price_data": ()} for info in token_info} # Now we can modify the data by the key itself
+        self.__token_data = {info['id']: {"token_info": info, "price_data": []} for info in token_info} # Now we can modify the data by the key itself
 
         self.__threads = []
 
@@ -26,8 +26,10 @@ class Monitor:
         recent_changes = [change[-1] for change in changes]
         recent_concavities = [concavity[-1] for concavity in concavities]
 
-        # score = (slope_1 ** ((1 - (1 / np.math.sqrt(N_STEPS))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(N_STEPS)) * concavity_n)) # I need a new moon score
         score = 1
+        for change, concavity, change_period in zip(recent_changes, recent_concavities, CHANGE_PERIODS):
+            partial_score = (change * concavity) ** (1 / (change_period ** 0.5))
+            score *= partial_score
 
         return [*(recent_change, recent_concavity) for recent_change, recent_concavity in zip(recent_changes, recent_concavities)] + [recent_price] + [score]
 
