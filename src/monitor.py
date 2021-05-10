@@ -1,8 +1,6 @@
-# This is going to have a class which is responsible for monitoring the prices and such
-# Take code for splitting arrays from my previous project
 import os
-from api import API
 import threading
+from api import API
 
 class Monitor:
     def __init__(self, num_symbols):
@@ -11,27 +9,27 @@ class Monitor:
 
         token_info = self.__api.get_token_info(num_symbols)
         self.__token_data = {info['id']: {"token_info": info, "price_data": ()} for info in token_info} # Now we can modify the data by the key itself
-        self.__token_ids = [info['id'] for info in token_info]
 
         self.__threads = []
 
     @staticmethod
-    def moon_score(price_data):
-        price_rate_1 = price_data[1:] / price_data[:-1]
-        price_rate_1_rate = price_rate_1[1:] / price_rate_1[:-1]
+    def parse_price_data(price_data):
+        recent_price = price_data[-1]
 
-        N_STEPS = 5
-        price_rate_n = price_data[N_STEPS:] / price_data[:-N_STEPS]
-        price_rate_n_rate = price_rate_n[N_STEPS:] / price_rate_n[:-N_STEPS]
+        # I want to do a 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
+        # How am I going to base my moon score off of this
 
-        slope_1 = price_rate_1[-1]
-        concavity_1 = price_rate_1_rate[-1]
-        slope_n = price_rate_n[-1]
-        concavity_n = price_rate_n_rate[-1]
+        CHANGE_PERIODS = [2, 6, 12, 24, 48]
+        changes = [price_data[period:] / price_data[:-period] for period in CHANGE_PERIODS]
+        concavities = [cg[period:] / cg[:-period] for cg, period in zip(changes, CHANGE_PERIODS)]
 
-        score = (slope_1 ** ((1 - (1 / np.math.sqrt(N_STEPS))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(N_STEPS)) * concavity_n))
+        recent_changes = [change[-1] for change in changes]
+        recent_concavities = [concavity[-1] for concavity in concavities]
 
-        return slope_1, concavity_1, slope_n, concavity_n, score
+        # score = (slope_1 ** ((1 - (1 / np.math.sqrt(N_STEPS))) * concavity_1)) * (slope_n ** ((1 / np.math.sqrt(N_STEPS)) * concavity_n)) # I need a new moon score
+        score = 1
+
+        return [*(recent_change, recent_concavity) for recent_change, recent_concavity in zip(recent_changes, recent_concavities)] + [recent_price] + [score]
 
     @staticmethod
     def monitor_tokens(token_ids, token_data, stop_flag):
@@ -40,8 +38,10 @@ class Monitor:
         while not stop_flag[0]:
             for token_id in token_ids:
                 price_data = api.get_price_data(token_id)
-                price_data = Monitor.moon_score(price_data)
-                token_data[token_id]['price_data'] = price_data
+
+                if price_data != None:
+                    price_data = Monitor.parse_price_data(price_data)
+                    token_data[token_id]['price_data'] = price_data
     
     def stop(self):
         self.__stop_flag = [True]
@@ -50,16 +50,18 @@ class Monitor:
             thread.join()
 
     def run(self):
+        token_ids = list(self.__token_data.keys())
+
         num_cores = os.cpu_count()
-        total_items = len(self.__token_ids)
+        total_items = len(token_ids)
 
         # Now I need to get how many bots can go into the cores as well as the remainder
         per_core = total_items // num_cores
         remainders = total_items % num_cores # If there is not enough for the cores then this should be in its own seperate group
 
         cutoff_point = per_core * num_cores
-        split_group1 = self.__token_ids[:cutoff_point]
-        split_group2 = self.__token_ids[cutoff_point:]
+        split_group1 = token_ids[:cutoff_point]
+        split_group2 = token_ids[cutoff_point:]
 
         groups = []
         if per_core > 0:
@@ -83,7 +85,7 @@ class Monitor:
     def get_data(self, num_data):
         token_data = self.__token_data.copy()
 
-        sorted_tokens = sorted(token_data, key=lambda x: token_data[x]['price_data'][4], reverse=True)
+        sorted_tokens = sorted(token_data, key=lambda x: token_data[x]['price_data'][4], reverse=True) # Exclude tokens that dont contain any price data
 
         formatted = [(data['token_info']['name'], data['token_info']['symbol'], *data['price_data'][:4]) for data in list(token_data.values())[:num_data]]
 

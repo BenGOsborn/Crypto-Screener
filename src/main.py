@@ -6,10 +6,5 @@ from api import API
 def main():
     api = API()
 
-    price_data = api.get_price_data("dogecoin")
-    score = moon_score(price_data)
-
-    print(score)
-
 if __name__ == "__main__":
     main()
