@@ -8,7 +8,7 @@ class Monitor:
         self.__num_symbols = num_symbols
 
         token_info = self.__api.get_token_info(num_symbols)
-        self.__token_data = {info['id']: {"token_info": info, "price_data": []} for info in token_info} # Now we can modify the data by the key itself
+        self.__token_data = {info['id']: {"token_info": info, "price_data": [-1000 for _ in range(12)]} for info in token_info} # Now we can modify the data by the key itself
 
         self.__threads = []
 
