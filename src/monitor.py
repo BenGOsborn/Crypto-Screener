@@ -8,30 +8,36 @@ class Monitor:
         self.__num_symbols = num_symbols
 
         token_info = self.__api.get_token_info(num_symbols)
-        self.__token_data = {info['id']: {"token_info": info, "price_data": [-1000 for _ in range(12)]} for info in token_info} # Now we can modify the data by the key itself
+        self.__token_data = {info['id']: {"token_info": info, "price_data": [-1000 for _ in range(8)]} for info in token_info} # Change the number of -1000s
 
         self.__threads = []
 
     @staticmethod
-    def parse_price_data(price_data):
-        recent_price = price_data[-1]
-
+    def parse_token_data(token_data):
         # I want to do a 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
-        # How am I going to base my moon score off of this
+
+        price_data = token_data[0]
+        total_volume_data = token_data[1] # Same for this what do they mean?
+        volume_data = total_volume_data[1:] - total_volume_data[:-1] # Wait what does this actually mean though???
+
+        recent_price = price_data[-1]
+        recent_volume = volume_data[-1]
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48]
-        changes = [price_data[period:] / price_data[:-period] for period in CHANGE_PERIODS]
-        concavities = [cg[period:] / cg[:-period] for cg, period in zip(changes, CHANGE_PERIODS)]
+        price_changes = [price_data[period:] / price_data[:-period] for period in CHANGE_PERIODS]
+        price_concavities = [cg[period:] / cg[:-period] for cg, period in zip(price_changes, CHANGE_PERIODS)]
+        volume_changes = [volume_data[period:] / volume_data[:-period] for period in CHANGE_PERIODS]
 
-        recent_changes = [change[-1] for change in changes]
-        recent_concavities = [concavity[-1] for concavity in concavities]
+        recent_price_changes = [change[-1] for change in price_changes]
+        recent_price_concavities = [concavity[-1] for concavity in price_concavities]
+        recent_volume_changes = [volume[-1] for volume in volume_changes]
 
-        score = 1
-        for change, concavity, reversed_change_period in zip(recent_changes, recent_concavities, CHANGE_PERIODS[::-1]):
-            partial_score = (change * concavity) ** (reversed_change_period ** 0.5)
-            score *= partial_score
+        moon_score = 1
+        for price_change, price_concavity, volume_change, reversed_change_period in zip(recent_price_changes, recent_price_concavities, recent_volume_changes, CHANGE_PERIODS[::-1]):
+            partial_moon_score = (price_change * price_concavity * volume_change) ** (reversed_change_period ** 0.5)
+            moon_score *= partial_moon_score
 
-        return [*(recent_change, recent_concavity) for recent_change, recent_concavity in zip(recent_changes, recent_concavities)] + [recent_price] + [score]
+        return recent_price_changes + [recent_price, recent_volume, moon_score]
 
     @staticmethod
     def monitor_tokens(token_ids, token_data, stop_flag):
@@ -87,9 +93,9 @@ class Monitor:
     def get_data(self, num_data):
         token_data = self.__token_data.copy()
 
-        sorted_tokens = sorted(token_data, key=lambda x: token_data[x]['price_data'][4], reverse=True) # Exclude tokens that dont contain any price data
+        sorted_tokens = sorted(token_data, key=lambda x: token_data[x]['price_data'][4], reverse=True)
 
-        formatted = [(data['token_info']['name'], data['token_info']['symbol'], *data['price_data'][:4]) for data in list(token_data.values())[:num_data]]
+        formatted = [(data['token_info']['name'], data['token_info']['symbol'], *data['price_data']) for data in list(token_data.values())[:num_data]] # The data returned here needs to be modified
 
         return formatted
 

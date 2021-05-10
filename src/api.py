@@ -25,16 +25,16 @@ class API:
         
         return token_data[:num_symbols]
 
-    def get_price_data(self, symbol_id):
+    def get_token_data(self, symbol_id):
         DAYS = 7
         req_url = f"{self.__COINGECKO_URL}/coins/{symbol_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={DAYS}"
         request = self.__session.get(req_url) 
 
         try:
             form_json = request.json()
-            price_history = np.array(form_json['prices'])
+            token_data = np.array([form_json['prices'], form_json['total_volumes']])
 
-            return price_history[:, 1]
+            return token_data[:, :, 1]
         
         except:
             None
@@ -46,4 +46,6 @@ if __name__ == "__main__":
 
     for token in token_info:
         print(token)
-        print(api.get_price_data(token['id']).shape)
+        print(api.get_token_data(token['id']).shape)
+
+        break
