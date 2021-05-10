@@ -27,8 +27,8 @@ class Monitor:
         recent_concavities = [concavity[-1] for concavity in concavities]
 
         score = 1
-        for change, concavity, change_period in zip(recent_changes, recent_concavities, CHANGE_PERIODS):
-            partial_score = (change * concavity) ** (1 / (change_period ** 0.5))
+        for change, concavity, reversed_change_period in zip(recent_changes, recent_concavities, CHANGE_PERIODS[::-1]):
+            partial_score = (change * concavity) ** (reversed_change_period ** 0.5)
             score *= partial_score
 
         return [*(recent_change, recent_concavity) for recent_change, recent_concavity in zip(recent_changes, recent_concavities)] + [recent_price] + [score]
