@@ -1,4 +1,4 @@
-from monitor import Monitor
+from screener.monitor import Monitor
 from time import sleep
 from tabulate import tabulate
 

@@ -2,7 +2,7 @@ import os
 import threading
 from time import sleep
 import numpy as np
-from api import API
+from screener.api import API
 
 class Monitor:
     def __init__(self, num_symbols):
@@ -11,7 +11,7 @@ class Monitor:
 
         api = API()
         token_info = api.get_token_info(num_symbols)
-        self.__token_data = {info['id']: {"token_info": info, "price_data": [-1000 for _ in range(7)]} for info in token_info}
+        self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)]} for info in token_info}
 
         self.__threads = []
 
@@ -93,8 +93,8 @@ class Monitor:
             thread.start()
             self.__threads.append(thread)
 
-    def get_data(self, num_data):
-        sorted_tokens = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=True)
+    def get_data(self, num_data, reverse=False):
+        sorted_tokens = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
         formatted = {token_id: self.__token_data[token_id] for token_id in sorted_tokens[:num_data + 1]}
 
         return formatted

@@ -21,7 +21,7 @@ class API:
 
             if request.ok:
                 form_data = request.json()
-                token_data += [{"id": data['id'], "symbol": data['symbol'], "name": data['name'], "image": data['image']} for data in form_data]
+                token_data += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'image': data['image']} for data in form_data]
         
         return token_data[:num_symbols]
 
