@@ -50,7 +50,7 @@ class Monitor:
                 except Exception as e:
                     continue
 
-            sleep(30)
+            sleep(60)
     
     def stop(self):
         self.__stop_flag[0] = True

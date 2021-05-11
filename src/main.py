@@ -3,7 +3,7 @@ from time import sleep
 from tabulate import tabulate
 
 def main(): # Maybe some sort of command line argument here
-    NUM_SYMBOLS = 1000
+    NUM_SYMBOLS = 3000
     NUM_SYMBOLS_DISPLAY = 7
 
     monitor = Monitor(NUM_SYMBOLS)
@@ -18,7 +18,7 @@ def main(): # Maybe some sort of command line argument here
             print(table)
             print()
 
-            sleep(60)
+            sleep(60 * 10)
         
         except KeyboardInterrupt:
             break
