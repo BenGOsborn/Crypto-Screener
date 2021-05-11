@@ -50,7 +50,7 @@ class Monitor:
                 except Exception as e:
                     continue
 
-            sleep(10)
+            sleep(30)
     
     def stop(self):
         self.__stop_flag[0] = True
@@ -90,11 +90,8 @@ class Monitor:
             self.__threads.append(thread)
 
     def get_data(self, num_data):
-        token_data = self.__token_data.copy()
-
-        sorted_tokens = sorted(token_data, key=lambda x: token_data[x]['price_data'][6], reverse=True)
-
-        formatted = [token_data[token_id] for token_id in sorted_tokens[:num_data + 1]]
+        sorted_tokens = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=True)
+        formatted = {token_id: self.__token_data[token_id] for token_id in sorted_tokens[:num_data + 1]}
 
         return formatted
 
