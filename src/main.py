@@ -3,7 +3,7 @@ from time import sleep
 from tabulate import tabulate
 
 def main(): # Maybe some sort of command line argument here
-    NUM_SYMBOLS = 4000
+    NUM_SYMBOLS = 4000 
     NUM_SYMBOLS_DISPLAY = 7
 
     monitor = Monitor(NUM_SYMBOLS)
