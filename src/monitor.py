@@ -106,6 +106,6 @@ if __name__ == "__main__":
     sleep(120)
     
     data = monitor.get_data(5)
-    print([(dic['token_info']['name'], dic['price_data'][6]) for dic in data])
+    print([(dic['token_info']['symbol'], dic['price_data'][6]) for dic in data])
 
     monitor.stop()
