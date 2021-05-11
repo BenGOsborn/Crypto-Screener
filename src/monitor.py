@@ -41,11 +41,14 @@ class Monitor:
 
         while not stop_flag[0]:
             for token_id in token_ids:
-                price_data = api.get_price_data(token_id)
+                try:
+                    price_data = api.get_price_data(token_id)
 
-                if price_data is not None:
                     price_data_parsed = Monitor.parse_price_data(price_data)
                     token_data[token_id]['price_data'] = price_data_parsed
+
+                except Exception as e:
+                    continue
 
             sleep(10)
     

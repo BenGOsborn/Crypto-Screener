@@ -30,22 +30,12 @@ class API:
         req_url = f"{self.__COINGECKO_URL}/coins/{symbol_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={DAYS}"
         request = self.__session.get(req_url) 
 
-        try:
-            form_json = request.json()
-            token_data = np.array(form_json['prices'])
+        form_json = request.json()
+        token_data = np.array(form_json['prices'])
 
-            return token_data[:, 1]
-        
-        except:
-            None
+        return token_data[:, 1]
 
 if __name__ == "__main__":
     api = API()
 
-    token_info = api.get_token_info(10)
-
-    for token in token_info:
-        print(token)
-        print(api.get_price_data(token['id']).shape)
-
-        break
+    print(api.get_price_data('csp-dao-network'))
