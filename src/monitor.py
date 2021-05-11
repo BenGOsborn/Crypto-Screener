@@ -48,14 +48,13 @@ class Monitor:
             for token_id in token_ids:
                 try:
                     price_data = api.get_price_data(token_id)
-
                     price_data_parsed = Monitor.parse_price_data(price_data)
                     token_data[token_id]['price_data'] = price_data_parsed
 
                 except Exception as e:
                     continue
 
-            sleep(60)
+            sleep(60 * 5)
     
     def stop(self):
         self.__stop_flag[0] = True
