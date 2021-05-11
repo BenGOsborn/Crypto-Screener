@@ -29,7 +29,7 @@ class Monitor:
         recent_price_concavities = [concavity[-1] for concavity in price_concavities]
 
         moon_score = 1
-        for price_change, price_concavity, reversed_change_period in zip(recent_price_changes, recent_price_concavities, CHANGE_PERIODS[::-1]):
+        for price_change, price_concavity, reversed_change_period in zip(recent_price_changes, recent_price_concavities, CHANGE_PERIODS[::-1]): # Modify the moon score
             partial_moon_score = (price_change * price_concavity) ** (reversed_change_period ** 0.5)
             moon_score *= partial_moon_score
         
@@ -99,11 +99,11 @@ class Monitor:
         return formatted
 
 if __name__ == "__main__":
-    monitor = Monitor(1000)
+    monitor = Monitor(100)
 
     monitor.run()
 
-    sleep(120)
+    sleep(10)
     
     data = monitor.get_data(5)
     print([(dic['token_info']['symbol'], dic['price_data'][6]) for dic in data])
