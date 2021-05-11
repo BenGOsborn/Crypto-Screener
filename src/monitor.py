@@ -16,16 +16,15 @@ class Monitor:
 
     @staticmethod
     def parse_price_data(price_data):
-        # I want to do a 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
         EPSILON = 1e-6
 
         recent_price = price_data[-1]
 
-        CHANGE_PERIODS = [2, 6, 12, 24, 48]
+        CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
         price_changes = [(price_data[period:] / (price_data[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
-        moon_score = 1
-        for price_change, reversed_change_period in zip(price_changes, CHANGE_PERIODS[::-1]): # Modify the moon score
+        moon_score = 1 # Modify the moon score
+        for price_change, reversed_change_period in zip(price_changes, CHANGE_PERIODS[::-1]):
             partial_moon_score = price_change ** (reversed_change_period ** 0.5)
             moon_score *= partial_moon_score
         
