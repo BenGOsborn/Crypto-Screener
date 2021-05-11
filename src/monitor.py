@@ -22,18 +22,14 @@ class Monitor:
         recent_price = price_data[-1]
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48]
-        price_changes = [price_data[period:] / (price_data[:-period] + EPSILON) for period in CHANGE_PERIODS]
-        price_concavities = [cg[period:] / (cg[:-period] + EPSILON) for cg, period in zip(price_changes, CHANGE_PERIODS)]
-
-        recent_price_changes = [change[-1] for change in price_changes]
-        recent_price_concavities = [concavity[-1] for concavity in price_concavities]
+        price_changes = [(price_data[period:] / (price_data[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
         moon_score = 1
-        for price_change, price_concavity, reversed_change_period in zip(recent_price_changes, recent_price_concavities, CHANGE_PERIODS[::-1]): # Modify the moon score
-            partial_moon_score = (price_change * price_concavity) ** (reversed_change_period ** 0.5)
+        for price_change, reversed_change_period in zip(price_changes, CHANGE_PERIODS[::-1]): # Modify the moon score
+            partial_moon_score = price_change ** (reversed_change_period ** 0.5)
             moon_score *= partial_moon_score
         
-        return recent_price_changes + [recent_price, moon_score]
+        return price_changes + [recent_price, moon_score]
 
     @staticmethod
     def monitor_tokens(token_ids, token_data, stop_flag):

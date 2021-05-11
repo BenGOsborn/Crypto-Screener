@@ -26,4 +26,12 @@ def main(): # Maybe some sort of command line argument here
     monitor.stop()
 
 if __name__ == "__main__":
-    main()
+    from api import API
+
+    api = API()
+
+    data = api.get_price_data('shiba-inu')
+    print(Monitor.parse_price_data(data))
+    # main()
+
+
