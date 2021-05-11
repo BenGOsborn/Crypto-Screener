@@ -12,9 +12,9 @@ def main(): # Maybe some sort of command line argument here
     while True:
         try:
             raw_data = monitor.get_data(NUM_SYMBOLS_DISPLAY)
-            table_data = [[data['token_info']['name'], data['token_info']['symbol'], *data['price_data'][:6]] for data in raw_data.values()]
+            table_data = [[data['token_info']['name'], data['token_info']['symbol'], f"https://www.coingecko.com/en/coins/{data['token_info']['id']}", *data['price_data'][:6]] for data in raw_data.values()]
 
-            table = tabulate(table_data, headers=["Name", "Symbol", "2hr change", "6hr change", "12hr change", "24hr change", "48hr change", "Recent price"])
+            table = tabulate(table_data, headers=["Name", "Symbol", "URL", "2hr change", "6hr change", "12hr change", "24hr change", "48hr change", "Recent price"])
             print(table)
             print()
 
