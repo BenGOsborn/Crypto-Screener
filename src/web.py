@@ -5,9 +5,9 @@ import traceback
 from screener.monitor import Monitor
 
 SYMBOLS_TO_MONITOR = 6000
-RETURN_SYMBOLS = 50
+PAGE_SIZE = 50
 PAGE_MIN = 1
-PAGE_MAX = (SYMBOLS_TO_MONITOR - 1) // RETURN_SYMBOLS # This is confusing
+PAGE_MAX = (SYMBOLS_TO_MONITOR - 1) // PAGE_SIZE
 
 monitor = Monitor(SYMBOLS_TO_MONITOR)
 monitor.run()
@@ -15,11 +15,10 @@ monitor.run()
 app = Flask(__name__)
 cors = CORS(app)
 
-# I need another router for determining how many pages there should be
 @app.route("/api/get_pages_info", methods=['GET'], strict_slashes=False)
 @cross_origin()
 def get_pages_info():
-    return jsonify({'page_min': PAGE_MIN, 'page_max': PAGE_MAX}), 200
+    return jsonify({'page_min': PAGE_MIN, 'page_max': PAGE_MAX, 'page_size': PAGE_SIZE}), 200
 
 @app.route("/api/get_page", methods=['POST'], strict_slashes=False)
 @cross_origin()
@@ -32,8 +31,8 @@ def get_page():
             raise ValueError("Invalid page number")
         reverse = form_json['reverse']
 
-        start_index = (page_number - 1) * RETURN_SYMBOLS
-        end_index = page_number * RETURN_SYMBOLS
+        start_index = (page_number - 1) * PAGE_SIZE
+        end_index = page_number * PAGE_SIZE
 
         data = monitor.get_data(start_index, end_index, reverse=reverse)
 
