@@ -93,9 +93,9 @@ class Monitor:
             thread.start()
             self.__threads.append(thread)
 
-    def get_data(self, num_symbols, reverse=False):
+    def get_data(self, start_index, end_index, reverse=False):
         sorted_tokens = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
-        formatted = {token_id: self.__token_data[token_id] for token_id in sorted_tokens[:num_symbols + 1]}
+        formatted = {token_id: self.__token_data[token_id] for token_id in sorted_tokens[start_index:end_index]}
 
         return formatted
 

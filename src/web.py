@@ -4,14 +4,18 @@ import os
 import traceback
 from screener.monitor import Monitor
 
-NUM_SYMBOLS = 6000
-MAX_SYMBOLS = 500
+SYMBOLS_TO_MONITOR = 6000
+RETURN_SYMBOLS = 50
+PAGE_COUNT = (SYMBOLS_TO_MONITOR - 1) // RETURN_SYMBOLS + 1 # Is this correct ???
 
-monitor = Monitor(NUM_SYMBOLS)
+monitor = Monitor(SYMBOLS_TO_MONITOR)
 monitor.run()
 
 app = Flask(__name__)
 cors = CORS(app)
+
+# I need another router for determining how many pages there should be
+
 
 @app.route("/api/get_cryptos", methods=['POST'], strict_slashes=False)
 @cross_origin()
@@ -19,13 +23,15 @@ def get_cryptos():
     try:
         form_json = request.json
 
-        num_symbols = int(form_json['num_symbols'])
-        if num_symbols > MAX_SYMBOLS:
-            raise Exception(f"Number of symbols requested exceeds limit of {MAX_SYMBOLS}")
-
+        page_number = int(form_json['page_number'])
         reverse = form_json['reverse']
 
-        data = monitor.get_data(num_symbols, reverse=reverse)
+        start_index = (page_number - 1) * RETURN_SYMBOLS
+        if start_index < 0 or start_index >= SYMBOLS_TO_MONITOR:
+            raise IndexError(f"Page must be between and not including {0} and {SYMBOLS_TO_MONITOR // RETURN_SYMBOLS}")
+        end_index = page_number * RETURN_SYMBOLS
+
+        data = monitor.get_data(start_index, end_index, reverse=reverse)
 
         return jsonify(data), 200
 
