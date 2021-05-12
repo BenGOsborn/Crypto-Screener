@@ -27,9 +27,10 @@ def get_page():
         form_json = request.json
 
         page_number = int(form_json['page_number'])
+        reverse = form_json['reverse']
+
         if page_number < PAGE_MIN or page_number > PAGE_MAX:
             raise ValueError("Invalid page number")
-        reverse = form_json['reverse']
 
         start_index = (page_number - 1) * PAGE_SIZE
         end_index = page_number * PAGE_SIZE
