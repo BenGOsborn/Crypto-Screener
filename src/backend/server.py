@@ -37,7 +37,7 @@ def get_page():
 
         data = monitor.get_data(start_index, end_index, reverse=reverse)
 
-        return jsonify(data), 200
+        return jsonify({'error': None, 'data': data}), 200
 
     except:
         err = traceback.format_exc()
