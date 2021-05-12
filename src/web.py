@@ -15,11 +15,14 @@ app = Flask(__name__)
 cors = CORS(app)
 
 # I need another router for determining how many pages there should be
-
-
-@app.route("/api/get_cryptos", methods=['POST'], strict_slashes=False)
+@app.route("/api/get_pages_info", methods=['GET'], strict_slashes=False)
 @cross_origin()
-def get_cryptos():
+def get_pages_info():
+    pass
+
+@app.route("/api/get_page", methods=['POST'], strict_slashes=False)
+@cross_origin()
+def get_page():
     try:
         form_json = request.json
 
