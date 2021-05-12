@@ -6,7 +6,8 @@ from screener.monitor import Monitor
 
 SYMBOLS_TO_MONITOR = 6000
 RETURN_SYMBOLS = 50
-PAGE_COUNT = (SYMBOLS_TO_MONITOR - 1) // RETURN_SYMBOLS
+PAGE_MIN = 1
+PAGE_MAX = (SYMBOLS_TO_MONITOR - 1) // RETURN_SYMBOLS # This is confusing
 
 monitor = Monitor(SYMBOLS_TO_MONITOR)
 monitor.run()
@@ -18,7 +19,7 @@ cors = CORS(app)
 @app.route("/api/get_pages_info", methods=['GET'], strict_slashes=False)
 @cross_origin()
 def get_pages_info():
-    pass
+    return jsonify({'page_min': PAGE_MIN, 'page_max': PAGE_MAX}), 200
 
 @app.route("/api/get_page", methods=['POST'], strict_slashes=False)
 @cross_origin()
@@ -27,7 +28,7 @@ def get_page():
         form_json = request.json
 
         page_number = int(form_json['page_number'])
-        if page_number < 1 or page_number > PAGE_COUNT:
+        if page_number < PAGE_MIN or page_number > PAGE_MAX:
             raise ValueError("Invalid page number")
         reverse = form_json['reverse']
 
