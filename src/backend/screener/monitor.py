@@ -53,8 +53,6 @@ class Monitor:
 
                 except Exception as e:
                     continue
-
-            sleep(60 * 10)
     
     def stop(self):
         self.__stop_flag[0] = True
@@ -95,7 +93,7 @@ class Monitor:
 
     def get_data(self, start_index, end_index, reverse=False):
         sorted_tokens = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
-        formatted = {token_id: self.__token_data[token_id] for token_id in sorted_tokens[start_index:end_index]}
+        formatted = [self.__token_data[token_id] for token_id in sorted_tokens[start_index:end_index]]
 
         return formatted
 
