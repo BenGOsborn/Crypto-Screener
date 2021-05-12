@@ -53,6 +53,8 @@ class Monitor:
 
                 except Exception as e:
                     continue
+                
+                sleep(3)
     
     def stop(self):
         self.__stop_flag[0] = True

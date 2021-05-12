@@ -7,7 +7,7 @@ from screener.monitor import Monitor
 SYMBOLS_TO_MONITOR = 6000
 PAGE_SIZE = 50
 PAGE_MIN = 1
-PAGE_MAX = (SYMBOLS_TO_MONITOR - 1) // PAGE_SIZE
+PAGE_MAX = SYMBOLS_TO_MONITOR // PAGE_SIZE
 
 monitor = Monitor(SYMBOLS_TO_MONITOR)
 monitor.run()
