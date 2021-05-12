@@ -6,7 +6,7 @@ from screener.monitor import Monitor
 
 SYMBOLS_TO_MONITOR = 6000
 RETURN_SYMBOLS = 50
-PAGE_COUNT = (SYMBOLS_TO_MONITOR - 1) // RETURN_SYMBOLS + 1 # Is this correct ???
+PAGE_COUNT = (SYMBOLS_TO_MONITOR - 1) // RETURN_SYMBOLS
 
 monitor = Monitor(SYMBOLS_TO_MONITOR)
 monitor.run()
@@ -27,11 +27,11 @@ def get_page():
         form_json = request.json
 
         page_number = int(form_json['page_number'])
+        if page_number < 1 or page_number > PAGE_COUNT:
+            raise ValueError("Invalid page number")
         reverse = form_json['reverse']
 
         start_index = (page_number - 1) * RETURN_SYMBOLS
-        if start_index < 0 or start_index >= SYMBOLS_TO_MONITOR:
-            raise IndexError(f"Page must be between and not including {0} and {SYMBOLS_TO_MONITOR // RETURN_SYMBOLS}")
         end_index = page_number * RETURN_SYMBOLS
 
         data = monitor.get_data(start_index, end_index, reverse=reverse)
