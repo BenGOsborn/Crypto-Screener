@@ -4,7 +4,7 @@ import os
 import traceback
 from screener.monitor import Monitor
 
-SYMBOLS_TO_MONITOR = 6000
+SYMBOLS_TO_MONITOR = 7000
 PAGE_SIZE = 50
 PAGE_MIN = 1
 PAGE_MAX = SYMBOLS_TO_MONITOR // PAGE_SIZE

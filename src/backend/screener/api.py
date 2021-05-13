@@ -13,7 +13,7 @@ class API:
         PER_PAGE = 250
         num_pages = (num_symbols - 1) // PER_PAGE + 1
 
-        token_data = []
+        token_info = []
 
         for page_number in range(num_pages):
             req_url = f"{self.__COINGECKO_URL}/coins/markets?vs_currency={self.__VS_CURRENCY}&per_page={PER_PAGE}&page={page_number + 1}"
@@ -21,19 +21,20 @@ class API:
 
             if request.ok:
                 form_data = request.json()
-                token_data += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_data]
+                token_info += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_data]
         
-        return token_data[:num_symbols]
+        return token_info[:num_symbols]
 
     def get_price_data(self, symbol_id):
         DAYS = 7
         req_url = f"{self.__COINGECKO_URL}/coins/{symbol_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={DAYS}"
         request = self.__session.get(req_url) 
 
-        form_json = request.json()
-        token_data = np.array(form_json['prices'])
+        if request.ok:
+            form_json = request.json()
+            token_data = np.array(form_json['prices'])
 
-        return token_data[:, 1]
+            return token_data[:, 1]
 
 if __name__ == "__main__":
     api = API()
