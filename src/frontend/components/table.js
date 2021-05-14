@@ -1,23 +1,16 @@
 import React from 'react';
 import axios from 'axios';
 
-// Different options to get the items for different pages and rank by different amounts and such
-function loadPageData(pageNum, reverse, debug=false) {
-    axios.post('https://coin-screener-api.herokuapp.com/api/get_page', { page_number: pageNum, reverse: reverse })
-    .then(res => {
-        const form = res.data;
+function chooseColour(price) {
+    if (price < 0) {
+        return "text-danger";
 
-        return form.data;
-    })
-    .catch(err => {
-        const form = err.response;
+    } else if (price > 0) {
+        return "text-success";
 
-        if (debug === true) {
-            console.log(form);
-        }
-
-        return null;
-    });
+    } else {
+        return "";
+    }
 }
 
 export default function Table() {
@@ -57,34 +50,42 @@ export default function Table() {
         });
     }, [page]);
 
+    // Now I need some way of navigating the different pages
+
     return (
-        <div>
-            {/* I need to add headings and titles to my table of course */}
-            {/* Change the colours of the numbers - also round them */}
-            {pageData.map(row => {
-                return (
-                    <tr>
-                        {/* Dynamically resize these images */}
-                        <td><img src={row.token_info.image} width={25} height={25} /></td>
-                        <td>{row.token_info.name}</td>
-                        <td><a href={row.token_info.url}>{row.token_info.symbol}</a></td>
-                        {console.log(row.price_data)}
-                        {row.price_data.map(price => {
-                            let colour;
-                            if (price < 0) {
-                                colour = "text-danger";
-                            } else if (price > 0) {
-                                colour = "text-success";
-                            } else {
-                                colour = "";
-                            }
-                            return (
-                                <td className={colour}>{parseInt(price * 100) / 100}</td>
-                            );
-                        })}
-                    </tr>
-                );
-            })}
-        </div>
+        <table className="table">
+            <thead className="thead-dark">
+                <tr>
+                    <th>Token image</th>
+                    <th>Token name</th>
+                    <th>Token symbol</th>
+                    <th>Token 2hr % change</th>
+                    <th>Token 6hr % change</th>
+                    <th>Token 12hr % change</th>
+                    <th>Token 24hr % change</th>
+                    <th>Token 48hr % change</th>
+                    <th>Token price ($USD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {pageData.map(row => {
+                    return (
+                        <tr>
+                            {/* Dynamically resize these images */}
+                            {/* THE TOKEN PRICE AND THE MOON SCORE SHOULD NOT BE MULTIPLED BY 100 */}
+                            <td><a href={row.token_info.url}><img src={row.token_info.image} width={25} height={25} /></a></td>
+                            <td><a href={row.token_info.url}>{row.token_info.name}</a></td>
+                            <td><a href={row.token_info.url}>{row.token_info.symbol}</a></td>
+                            {row.price_data.slice(0, -2).map(price => {
+                                return (
+                                    <td className={chooseColour(price)}>{parseInt(price * 100)}</td>
+                                );
+                            })}
+                            <td>{parseInt(row.price_data[5] * 1000000) / 1000000}</td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </table>
     );
 }
