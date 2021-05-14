@@ -1,3 +1,5 @@
+import Table from '../components/table';
+
 export default function Main() {
   return (
     <div className="Main">
@@ -9,6 +11,9 @@ export default function Main() {
             <h1>Coin Screener</h1>
             <p>Never miss out on the next coin boom again with a tool that ranks the best performing coins!</p>
           </div>
+
+          <Table />
+
           
         </div>
       </main>
