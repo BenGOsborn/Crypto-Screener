@@ -11,7 +11,7 @@ class Monitor:
         self.__num_symbols = num_symbols
         self.__page_size = page_size
         self.__PAGE_MIN = 1
-        self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1 # I might have to subtract 1 from the numerator
+        self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1
 
         api = API()
         token_info = api.get_token_info(num_symbols)
