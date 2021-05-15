@@ -5,15 +5,21 @@ import numpy as np
 from screener.api import API
 
 class Monitor:
-    def __init__(self, num_symbols):
+    def __init__(self, num_symbols, page_size):
         self.__stop_flag = [False]
+
         self.__num_symbols = num_symbols
+        self.__page_size = page_size
 
         api = API()
         token_info = api.get_token_info(num_symbols)
-        self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)]} for info in token_info}
+        self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)], 'init': False} for info in token_info}
 
         self.__threads = []
+
+    @staticmethod
+    def significant_figures(number, sig_figs):
+        return round(number, sig_figs - int(np.math.floor(np.math.log10(abs(number)))) - 1)
 
     @staticmethod
     def exp_moving_average(data, window):
@@ -26,11 +32,12 @@ class Monitor:
     def parse_price_data(price_data):
         EPSILON = 1e-6
         WINDOW = 12
+        SIG_FIGS = 4
 
-        recent_price = price_data[-1]
+        recent_price = Monitor.significant_figures(price_data[-1], SIG_FIGS)
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
-        price_changes = [(price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1 for period in CHANGE_PERIODS]
+        price_changes = [Monitor.significant_figures((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1, SIG_FIGS) for period in CHANGE_PERIODS]
         moving_price_changes = [(Monitor.exp_moving_average(price_data, WINDOW)[period:] / (Monitor.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
         moon_score = 1
@@ -50,6 +57,9 @@ class Monitor:
                     price_data = api.get_price_data(token_id)
                     price_data_parsed = Monitor.parse_price_data(price_data)
                     token_data[token_id]['price_data'] = price_data_parsed
+                    
+                    if not token_data[token_id]['init']:
+                        token_data[token_id]['init'] = True
 
                 except Exception as e:
                     continue
@@ -93,9 +103,21 @@ class Monitor:
             thread.start()
             self.__threads.append(thread)
 
-    def get_data(self, start_index, end_index, reverse=False):
-        sorted_tokens = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
-        formatted = [self.__token_data[token_id] for token_id in sorted_tokens[start_index:end_index]]
+    # --------------------------------------------------------------------------------------------------------------------------
+
+    # I want methods that do the splicing operations for the others - probably just turn the initialization into the constructor instead
+    def get_page_request_info(self, page_number):
+        page_max = self.__num_symbols // self.__page_size + 1 # The plus one is necessary because that way if there is 1 extra then it technically requires an extra page
+
+        # Now calculate the slice indices from the page number
+
+    def get_data(self, page_number, reverse=False):
+        # Now I need some way of getting the start index and the end index
+
+        sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
+        valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
+
+        formatted = [[i, *self.__token_data[token_id]['token_info'], *self.__token_data[token_id]['price_info']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
 
