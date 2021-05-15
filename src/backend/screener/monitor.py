@@ -11,7 +11,7 @@ class Monitor:
         self.__num_symbols = num_symbols
         self.__page_size = page_size
         self.__PAGE_MIN = 1
-        self.__PAGE_MAX = self.__num_symbols // self.__page_size + 1
+        self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1 # I might have to subtract 1 from the numerator
 
         api = API()
         token_info = api.get_token_info(num_symbols)
@@ -107,11 +107,11 @@ class Monitor:
 
     # --------------------------------------------------------------------------------------------------------------------------
 
-    def get_page_request_info(self, page_number):
+    def get_page_request_info(self):
         return self.__PAGE_MIN, self.__PAGE_MAX, self.__page_size, self.__num_symbols
 
     def get_page_data(self, page_number, reverse=False):
-        assert(page_number >= self.__PAGE_MIN and page_number <= self.__PAGE_MAX, "Invalid page number!")
+        assert page_number >= self.__PAGE_MIN and page_number <= self.__PAGE_MAX, "Invalid page number!"
 
         start_index = (page_number - 1) * self.__page_size
         end_index = page_number * self.__page_size
@@ -119,18 +119,19 @@ class Monitor:
         sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
 
-        formatted = [[i, *self.__token_data[token_id]['token_info'], *self.__token_data[token_id]['price_info']] for i, token_id in enumerate(valid_tokens)]
+        formatted = [[i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['price_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
     
-    def get_token_data(self, given_token_id, reverse=False): # Think about this reverse option a little more - does it make sense?
+    # This method is unused and untested
+    def get_token_data(self, given_token_id, reverse=False):
         sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']]
 
-        indexed = {token_id: {'index': i, **self.__token_data[token_id]} for i, token_id in enumerate(valid_tokens)}
+        indexed = {token_id: {'index': i + 1, **self.__token_data[token_id]} for i, token_id in enumerate(valid_tokens)}
 
         data_dic = indexed[given_token_id]
-        formatted = [data_dic['index'], *data_dic['token_info'], *data_dic['price_info']]
+        formatted = [data_dic['index'], *data_dic['token_info'].values(), *data_dic['price_data']]
 
         return formatted
 

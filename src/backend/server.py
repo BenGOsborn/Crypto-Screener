@@ -3,12 +3,17 @@ from flask_cors import CORS, cross_origin
 import os
 from screener.monitor import Monitor
 
-SYMBOLS_TO_MONITOR = 7000
-PAGE_SIZE = 50
-PAGE_MIN = 1
-PAGE_MAX = SYMBOLS_TO_MONITOR // PAGE_SIZE
+DEV = "DYNO" not in os.environ
 
-monitor = Monitor(SYMBOLS_TO_MONITOR)
+if DEV:
+    SYMBOLS_TO_MONITOR = 50
+    PAGE_SIZE = 50
+
+else:
+    SYMBOLS_TO_MONITOR = 7000
+    PAGE_SIZE = 50
+
+monitor = Monitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
 monitor.run()
 
 app = Flask(__name__)
@@ -17,30 +22,25 @@ cors = CORS(app)
 @app.route("/api/get_pages_info", methods=['GET'], strict_slashes=False)
 @cross_origin()
 def get_pages_info():
-    return jsonify({'page_min': PAGE_MIN, 'page_max': PAGE_MAX, 'page_size': PAGE_SIZE}), 200
+    page_min, page_max, page_size, num_symbols = monitor.get_page_request_info() 
 
-# Use proper JSON formatting for this too
-@app.route("/api/get_page", methods=['POST'], strict_slashes=False)
+    return jsonify({'pageMin': page_min, 'pageMax': page_max, 'pageSize': page_size, 'numSymbols': num_symbols}), 200
+
+@app.route("/api/get_page_data", methods=['POST'], strict_slashes=False)
 @cross_origin()
 def get_page():
     try:
         form_json = request.json
 
-        page_number = int(form_json['page_number'])
+        page_number = int(form_json['pageNumber'])
         reverse = form_json['reverse']
 
-        if page_number < PAGE_MIN or page_number > PAGE_MAX:
-            raise ValueError("Invalid page number")
+        data = monitor.get_page_data(page_number, reverse=reverse)
 
-        start_index = (page_number - 1) * PAGE_SIZE
-        end_index = page_number * PAGE_SIZE
-
-        data = monitor.get_data(start_index, end_index, reverse=reverse)
-
-        return jsonify({'error': None, 'data': data}), 200
+        return jsonify(data), 200
 
     except Exception as e:
         return str(e), 400
 
 if __name__ == "__main__":
-    app.run(debug=("DYNO" not in os.environ))
+    app.run(debug=DEV)
