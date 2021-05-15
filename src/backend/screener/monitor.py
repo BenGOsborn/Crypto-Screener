@@ -123,9 +123,16 @@ class Monitor:
 
         return formatted
     
-    def get_token_data(self, token_id):
-        # This should sort it to gets its ranking - if it has not been initialized then it should raise an exception
-        pass
+    def get_token_data(self, given_token_id, reverse=False): # Think about this reverse option a little more - does it make sense?
+        sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
+        valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']]
+
+        indexed = {token_id: {'index': i, **self.__token_data[token_id]} for i, token_id in enumerate(valid_tokens)}
+
+        data_dic = indexed[given_token_id]
+        formatted = [data_dic['index'], *data_dic['token_info'], *data_dic['price_info']]
+
+        return formatted
 
 if __name__ == "__main__":
     monitor = Monitor(100, 5)
