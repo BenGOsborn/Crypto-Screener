@@ -35,7 +35,7 @@ class Monitor:
         EPSILON = 1e-6
         WINDOW = 12
 
-        recent_price = Monitor.significant_figures(price_data[-1], 5) if price_data[-1] < 1 else round(price_data[-1], 3)
+        recent_price = Monitor.significant_figures(price_data[-1], 3) if price_data[-1] < 1 else round(price_data[-1], 3)
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
         price_changes = [Monitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, 3) for period in CHANGE_PERIODS]
