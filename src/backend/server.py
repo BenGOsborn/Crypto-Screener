@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 import os
-import traceback
 from screener.monitor import Monitor
 
 SYMBOLS_TO_MONITOR = 7000
@@ -20,6 +19,7 @@ cors = CORS(app)
 def get_pages_info():
     return jsonify({'page_min': PAGE_MIN, 'page_max': PAGE_MAX, 'page_size': PAGE_SIZE}), 200
 
+# Use proper JSON formatting for this too
 @app.route("/api/get_page", methods=['POST'], strict_slashes=False)
 @cross_origin()
 def get_page():
@@ -39,10 +39,8 @@ def get_page():
 
         return jsonify({'error': None, 'data': data}), 200
 
-    except:
-        err = traceback.format_exc()
-        print(err)
-        return jsonify({'error': err}), 400
+    except Exception as e:
+        return str(e), 400
 
 if __name__ == "__main__":
     app.run(debug=("DYNO" not in os.environ))

@@ -10,6 +10,8 @@ class Monitor:
 
         self.__num_symbols = num_symbols
         self.__page_size = page_size
+        self.__PAGE_MIN = 1
+        self.__PAGE_MAX = self.__num_symbols // self.__page_size + 1
 
         api = API()
         token_info = api.get_token_info(num_symbols)
@@ -105,14 +107,14 @@ class Monitor:
 
     # --------------------------------------------------------------------------------------------------------------------------
 
-    # I want methods that do the splicing operations for the others - probably just turn the initialization into the constructor instead
     def get_page_request_info(self, page_number):
-        page_max = self.__num_symbols // self.__page_size + 1 # The plus one is necessary because that way if there is 1 extra then it technically requires an extra page
+        return self.__PAGE_MIN, self.__PAGE_MAX, self.__page_size, self.__num_symbols
 
-        # Now calculate the slice indices from the page number
+    def get_page_data(self, page_number, reverse=False):
+        assert(page_number >= self.__PAGE_MIN and page_number <= self.__PAGE_MAX, "Invalid page number!")
 
-    def get_data(self, page_number, reverse=False):
-        # Now I need some way of getting the start index and the end index
+        start_index = (page_number - 1) * self.__page_size
+        end_index = page_number * self.__page_size
 
         sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
@@ -120,9 +122,13 @@ class Monitor:
         formatted = [[i, *self.__token_data[token_id]['token_info'], *self.__token_data[token_id]['price_info']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
+    
+    def get_token_data(self, token_id):
+        # This should sort it to gets its ranking - if it has not been initialized then it should raise an exception
+        pass
 
 if __name__ == "__main__":
-    monitor = Monitor(100)
+    monitor = Monitor(100, 5)
 
     monitor.run()
 
