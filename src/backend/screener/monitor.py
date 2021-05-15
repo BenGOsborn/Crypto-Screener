@@ -34,12 +34,11 @@ class Monitor:
     def parse_price_data(price_data):
         EPSILON = 1e-6
         WINDOW = 12
-        SIG_FIGS = 4
 
-        recent_price = Monitor.significant_figures(price_data[-1], SIG_FIGS)
+        recent_price = Monitor.significant_figures(price_data[-1], 3) if price_data[-1] < 1 else round(price_data[-1], 2)
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
-        price_changes = [Monitor.significant_figures((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1, SIG_FIGS) for period in CHANGE_PERIODS]
+        price_changes = [Monitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, 3) for period in CHANGE_PERIODS]
         moving_price_changes = [(Monitor.exp_moving_average(price_data, WINDOW)[period:] / (Monitor.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
         moon_score = 1

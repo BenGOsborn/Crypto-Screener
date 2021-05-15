@@ -14,7 +14,7 @@ function chooseColour(price) {
 }
 
 export default function Table() {
-    const [pageInfo, setPageInfo] = React.useState({'page_min': null, 'page_max': null, 'page_size': 50})
+    const [pageInfo, setPageInfo] = React.useState({'pageMin': null, 'pageMax': null, 'pageSize': 0, 'numSymbols': 0})
     const [page, setPage] = React.useState(1);
     const [reverse, setReverse] = React.useState(false);
     const [pageData, setPageData] = React.useState([]);
@@ -36,19 +36,24 @@ export default function Table() {
     }, []);
 
     React.useEffect(() => { // This should run initially too
-        axios.post('https://coin-screener-api.herokuapp.com/api/get_page', { page_number: page, reverse: reverse })
+        axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
         .then(res => {
             const form = res.data;
 
-            setPageData(form.data); 
+            // Index, id, symbol, name, url, image, 2hr, 6hr, 12hr, 24hr, 48hr, recent price, moon score
+            console.log(form);
+
+            setPageData(form); 
             setError(false);
         })
         .catch(err => {
             const form = err.response;
 
+            console.log(form);
+
             setError(true);
         });
-    }, [page]);
+    }, [page, reverse]);
 
     // Now I need some way of navigating the different pages
 
@@ -56,6 +61,7 @@ export default function Table() {
         <table className="table">
             <thead className="thead-dark">
                 <tr>
+                    <th>Rank</th>
                     <th>Token image</th>
                     <th>Token name</th>
                     <th>Token symbol</th>
@@ -71,17 +77,11 @@ export default function Table() {
                 {pageData.map(row => {
                     return (
                         <tr>
-                            {/* Dynamically resize these images */}
-                            {/* THE TOKEN PRICE AND THE MOON SCORE SHOULD NOT BE MULTIPLED BY 100 */}
-                            <td><a href={row.token_info.url}><img src={row.token_info.image} width={25} height={25} /></a></td>
-                            <td><a href={row.token_info.url}>{row.token_info.name}</a></td>
-                            <td><a href={row.token_info.url}>{row.token_info.symbol}</a></td>
-                            {row.price_data.slice(0, -2).map(price => {
+                            {row.map(col => {
                                 return (
-                                    <td className={chooseColour(price)}>{parseInt(price * 100)}</td>
+                                    <td>{col}</td>
                                 );
                             })}
-                            <td>{parseInt(row.price_data[5] * 1000000) / 1000000}</td>
                         </tr>
                     );
                 })}
