@@ -51,6 +51,9 @@ class Monitor:
     @staticmethod
     def monitor_tokens(token_ids, token_data, stop_flag, thread_id):
         api = API()
+        header = f"Thread {thread_id}: "
+
+        print(f"{header}Launched")
 
         while not stop_flag[0]:
             for token_id in token_ids:
@@ -62,20 +65,24 @@ class Monitor:
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
 
-                    print(f"Thread {thread_id}: Updated data for '{token_id}'")
+                    print(f"{header}Updated data for {token_id}")
 
                 except Exception as e:
-                    print(f"Thread {thread_id}: Encountered exception '{e}' for '{token_id}'")
+                    print(f"{header}Encountered exception '{e}' for {token_id}")
                 
-                sleep(5.5) # Prevents reaching the rate limit for the API - num_cores * (60 / sleep_time) < 100 requests per minute - IF CHANGED REQUESTS PER MINUTE NEEDS TO BE LESS THAN 100
+                sleep(8) # Prevents reaching the rate limit of 100 for the API
     
     def stop(self):
+        print("Stopping threads")
+
         self.__stop_flag[0] = True
 
         for thread in self.__threads:
             thread.join()
 
     def run(self):
+        print("Initializing threads...")
+        
         token_ids = list(self.__token_data.keys())
 
         num_cores = os.cpu_count()
