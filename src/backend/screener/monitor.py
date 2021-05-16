@@ -70,7 +70,7 @@ class Monitor:
                 except Exception as e:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
                 
-                sleep(8) # Prevents reaching the rate limit of 100 for the API
+                sleep(10) # Prevents reaching the rate limit of 100 for the API
     
     def stop(self):
         print("Stopping threads")

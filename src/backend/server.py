@@ -10,7 +10,7 @@ if DEV:
     PAGE_SIZE = 50
 
 else:
-    SYMBOLS_TO_MONITOR = 7000
+    SYMBOLS_TO_MONITOR = 5000
     PAGE_SIZE = 50
 
 monitor = Monitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
