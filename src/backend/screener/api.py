@@ -28,8 +28,6 @@ class API:
             
             sleep(1) # Prevents reaching the rate limit of 100 for the API
 
-        sleep(60) # This is to reset the rate limit on the API
-
         print(f"Got token info for {len(token_info)} tokens. Missing: {num_symbols - len(token_info)}")
         
         return token_info[:num_symbols]

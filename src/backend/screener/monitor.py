@@ -53,7 +53,9 @@ class Monitor:
         api = API()
         header = f"Thread {thread_id}: "
 
-        print(f"{header}Launched")
+        print(f"{header}Launched and ready to start")
+        sleep(60)
+        print(f"{header}Starting")
 
         while not stop_flag[0]:
             for token_id in token_ids:
