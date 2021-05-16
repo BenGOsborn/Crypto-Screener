@@ -82,7 +82,9 @@ class Monitor:
 
     def run(self):
         print("Initializing threads...")
-        
+
+        self.__stop_flag[0] = False
+
         token_ids = list(self.__token_data.keys())
 
         num_cores = os.cpu_count()

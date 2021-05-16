@@ -11,6 +11,8 @@ class API:
         self.__session = requests.Session()
 
     def get_token_info(self, num_symbols):
+        print(f"Getting token info for {num_symbols} tokens")
+
         PER_PAGE = 250
         num_pages = (num_symbols - 1) // PER_PAGE + 1
 
@@ -28,7 +30,7 @@ class API:
 
         sleep(60) # This is to reset the rate limit on the API
 
-        print(f"Got token info for {len(token_info)} tokens")
+        print(f"Got token info for {len(token_info)} tokens. Missing: {num_symbols - len(token_info)}")
         
         return token_info[:num_symbols]
 
