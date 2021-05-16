@@ -117,6 +117,8 @@ class Monitor:
             thread.start()
             self.__threads.append(thread)
 
+        print("Thread initialization process complete")
+
     # --------------------------------------------------------------------------------------------------------------------------
 
     def get_page_request_info(self):
