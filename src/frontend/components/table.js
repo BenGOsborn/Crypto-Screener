@@ -61,7 +61,7 @@ export default function Table() {
         <table className="table">
             <thead className="thead-dark">
                 <tr>
-                    <th>Rank</th>
+                    <th>Token rank</th>
                     <th>Token image</th>
                     <th>Token name</th>
                     <th>Token symbol</th>

@@ -49,7 +49,7 @@ class Monitor:
         return price_changes + [recent_price, moon_score]
 
     @staticmethod
-    def monitor_tokens(token_ids, token_data, stop_flag):
+    def monitor_tokens(token_ids, token_data, stop_flag, thread_id):
         api = API()
 
         while not stop_flag[0]:
@@ -62,10 +62,12 @@ class Monitor:
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
 
+                    print(f"Thread {thread_id}: Updated data for '{token_id}'")
+
                 except Exception as e:
-                    continue
+                    print(f"Thread {thread_id}: Encountered exception '{e}' for '{token_id}'")
                 
-                sleep(3)
+                sleep(5.5) # Prevents reaching the rate limit for the API - num_cores * (60 / sleep_time) < 100 requests per minute - IF CHANGED REQUESTS PER MINUTE NEEDS TO BE LESS THAN 100
     
     def stop(self):
         self.__stop_flag[0] = True
@@ -99,8 +101,8 @@ class Monitor:
             for i in range(remainders):
                 groups.append(split_group2[i])
 
-        for group in groups:
-            thread = threading.Thread(target=Monitor.monitor_tokens, args=(group, self.__token_data, self.__stop_flag))
+        for i, group in enumerate(groups):
+            thread = threading.Thread(target=Monitor.monitor_tokens, args=(group, self.__token_data, self.__stop_flag, i))
             thread.start()
             self.__threads.append(thread)
 
@@ -118,11 +120,11 @@ class Monitor:
         sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
 
-        formatted = [[i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['price_data']] for i, token_id in enumerate(valid_tokens)]
+        formatted = [[start_index + i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['price_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
     
-    # This method is unused and untested
+    # !!!!!!!!!!!!!!!!!! This method is unused and untested !!!!!!!!!!!!!!!!!!
     def get_token_data(self, given_token_id, reverse=False):
         sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']]

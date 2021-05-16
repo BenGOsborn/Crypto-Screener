@@ -1,5 +1,6 @@
 import datetime
 import requests
+from time import sleep
 import numpy as np
 
 class API:
@@ -22,6 +23,10 @@ class API:
             if request.ok:
                 form_data = request.json()
                 token_info += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_data]
+            
+            sleep(0.6 + 0.1) # Prevents the over spamming of the server by only sending the allowed amount - the +0.1 is to provide a margin of error 
+
+        sleep(60) # This is to reset the rate limit on the API
         
         return token_info[:num_symbols]
 

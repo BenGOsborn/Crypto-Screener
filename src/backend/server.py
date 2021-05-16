@@ -6,7 +6,7 @@ from screener.monitor import Monitor
 DEV = "DYNO" not in os.environ
 
 if DEV:
-    SYMBOLS_TO_MONITOR = 50
+    SYMBOLS_TO_MONITOR = 500
     PAGE_SIZE = 50
 
 else:
@@ -43,4 +43,4 @@ def get_page():
         return str(e), 400
 
 if __name__ == "__main__":
-    app.run(debug=DEV)
+    app.run()
