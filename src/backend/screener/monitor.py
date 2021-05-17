@@ -103,7 +103,7 @@ class Monitor:
         while not stop_flag[0]:
             try:
                 with open(file_path, 'r') as f:
-                    data = json.load(data_object, f)
+                    data = json.load(f)
                     data_object.update(data)
 
                 print(f"{header}Updated local data")
@@ -122,10 +122,7 @@ class Monitor:
             thread.join()
 
     def run(self):
-        # First we want to try and load up a file - if the file does not exist then t should create it and run the thread manager, if it does then it should monitor the file only
-        # and then report the data back into the appropriate file
-
-        # Immediately do a check for if the file exists - then if it does not we should create a file and do the following process, if not then follow the other process
+        # On every deployment, the temp file manually deleted before launching the app - this is done automatically in Heroku
 
         if os.path.exists(self.__file_path):
             print("Initializing read threads...")
@@ -187,7 +184,6 @@ class Monitor:
             self.__threads.append(write_thread)
 
             print("Write thread initialization process complete")
-
 
     # --------------------------------------------------------------------------------------------------------------------------
 
