@@ -14,8 +14,6 @@ class Monitor:
         self.__file_path = file_path
 
         self.__token_data = {}
-        self.__threads = []
-        self.__stop_flag = [False]
 
     @staticmethod
     def significant_figures(number, sig_figs):
@@ -47,7 +45,7 @@ class Monitor:
         return price_changes + [recent_price, moon_score]
 
     @staticmethod
-    def update_token_data(token_ids, token_data, stop_flag, thread_id):
+    def update_token_data(token_ids, token_data, thread_id):
         api = API()
         header = f"Thread update {thread_id}: "
 
@@ -55,7 +53,7 @@ class Monitor:
         sleep(60)
         print(f"{header}Starting")
 
-        while not stop_flag[0]:
+        while True:
             for token_id in token_ids:
                 try:
                     price_data = api.get_price_data(token_id)
@@ -70,17 +68,17 @@ class Monitor:
                 except Exception as e:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
                 
-                sleep(6) # Prevents reaching the rate limit of 100 for the API
+                sleep(8) # Prevents reaching the rate limit of 100 for the API
 
     @staticmethod
-    def write_token_data(data_object, file_path, stop_flag):
+    def write_token_data(data_object, file_path):
         header = f"Thread write 0: "
 
         print(f"{header}Launched and ready to start")
         sleep(60)
         print(f"{header}Starting")
 
-        while not stop_flag[0]:
+        while True:
             try:
                 with open(file_path, 'w') as f:
                     json.dump(data_object, f)
@@ -90,17 +88,17 @@ class Monitor:
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
 
-            sleep(10)
+            sleep(6)
 
     @staticmethod
-    def read_token_data(data_object, file_path, stop_flag):
+    def read_token_data(data_object, file_path):
         header = f"Thread read 0: "
 
         print(f"{header}Launched and ready to start")
         sleep(60)
         print(f"{header}Starting")
 
-        while not stop_flag[0]:
+        while True:
             try:
                 with open(file_path, 'r') as f:
                     data = json.load(f)
@@ -111,23 +109,15 @@ class Monitor:
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
             
-            sleep(10)
+            sleep(6)
         
     def stop(self):
-        print("Stopping threads")
+        print("Stopping...")
 
-        self.__stop_flag[0] = True
+        if os.path.exists(self.__file_path):
+            print("Cleaning up files")
 
-        for thread in self.__threads:
-            thread.join()
-        
-        print("Stopped all threads")  
-
-        print("Cleaning up files")
-
-        os.remove(self.__file_path)
-
-        print("Cleaned up files")
+            os.remove(self.__file_path)
 
     def run(self):
         # On every deployment, the temp file manually deleted before launching the app - this is done automatically in Heroku
@@ -135,9 +125,9 @@ class Monitor:
         if os.path.exists(self.__file_path):
             print("Initializing read threads...")
 
-            read_thread = threading.Thread(target=Monitor.read_token_data, args=(self.__token_data, self.__file_path, self.__stop_flag))
+            read_thread = threading.Thread(target=Monitor.read_token_data, args=(self.__token_data, self.__file_path))
+            read_thread.setDaemon(True)
             read_thread.start()
-            self.__threads.append(read_thread)
 
             print("Read thread initialization process complete")
 
@@ -179,17 +169,17 @@ class Monitor:
                     groups.append(split_group2[i])
 
             for i, group in enumerate(groups):
-                monitor_thread = threading.Thread(target=Monitor.update_token_data, args=(group, self.__token_data, self.__stop_flag, i))
+                monitor_thread = threading.Thread(target=Monitor.update_token_data, args=(group, self.__token_data, i))
+                monitor_thread.setDaemon(True)
                 monitor_thread.start()
-                self.__threads.append(monitor_thread)
 
             print("Monitor thread initialization process complete")
 
             print("Initializing write thread...")
             
-            write_thread = threading.Thread(target=Monitor.write_token_data, args=(self.__token_data, self.__file_path, self.__stop_flag))
+            write_thread = threading.Thread(target=Monitor.write_token_data, args=(self.__token_data, self.__file_path))
+            write_thread.setDaemon(True)
             write_thread.start()
-            self.__threads.append(write_thread)
 
             print("Write thread initialization process complete")
 
