@@ -90,7 +90,7 @@ class Monitor:
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
 
-            sleep(60)
+            sleep(10)
 
     @staticmethod
     def read_token_data(data_object, file_path, stop_flag):
@@ -111,7 +111,7 @@ class Monitor:
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
             
-            sleep(60)
+            sleep(10)
         
     def stop(self):
         print("Stopping threads")
