@@ -2,22 +2,20 @@ import os
 import threading
 from time import sleep
 import numpy as np
+import json
 from screener.api import API
 
 class Monitor:
-    def __init__(self, num_symbols, page_size):
-        self.__stop_flag = [False]
-
+    def __init__(self, num_symbols, page_size, file_path="tmp.json"):
         self.__num_symbols = num_symbols
         self.__page_size = page_size
         self.__PAGE_MIN = 1
         self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1
+        self.__file_path = file_path
 
-        api = API()
-        token_info = api.get_token_info(num_symbols)
-        self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)], 'init': False} for info in token_info}
-
+        self.__token_data = {}
         self.__threads = []
+        self.__stop_flag = [False]
 
     @staticmethod
     def significant_figures(number, sig_figs):
@@ -49,9 +47,9 @@ class Monitor:
         return price_changes + [recent_price, moon_score]
 
     @staticmethod
-    def monitor_tokens(token_ids, token_data, stop_flag, thread_id):
+    def update_token_data(token_ids, token_data, stop_flag, thread_id):
         api = API()
-        header = f"Thread {thread_id}: "
+        header = f"Thread update {thread_id}: "
 
         print(f"{header}Launched and ready to start")
         sleep(60)
@@ -72,8 +70,49 @@ class Monitor:
                 except Exception as e:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
                 
-                sleep(10) # Prevents reaching the rate limit of 100 for the API
-    
+                sleep(6) # Prevents reaching the rate limit of 100 for the API
+
+    @staticmethod
+    def write_token_data(data_object, file_path, stop_flag):
+        header = f"Thread write 0: "
+
+        print(f"{header}Launched and ready to start")
+        sleep(60)
+        print(f"{header}Starting")
+
+        while not stop_flag[0]:
+            try:
+                with open(file_path, 'w') as f:
+                    json.dump(data_object, f)
+                
+                print(f"{header}Updated shared data")
+            
+            except Exception as e:
+                print(f"{header}Encountered exception '{e}'")
+
+            sleep(60)
+
+    @staticmethod
+    def read_token_data(data_object, file_path, stop_flag):
+        header = f"Thread read 0: "
+
+        print(f"{header}Launched and ready to start")
+        sleep(60)
+        print(f"{header}Starting")
+
+        while not stop_flag[0]:
+            try:
+                with open(file_path, 'r') as f:
+                    data = json.load(data_object, f)
+                    data_object.update(data)
+
+                print(f"{header}Updated local data")
+            
+            except Exception as e:
+                print(f"{header}Encountered exception '{e}'")
+            
+            sleep(60)
+        
     def stop(self):
         print("Stopping threads")
 
@@ -83,41 +122,72 @@ class Monitor:
             thread.join()
 
     def run(self):
-        print("Initializing threads...")
+        # First we want to try and load up a file - if the file does not exist then t should create it and run the thread manager, if it does then it should monitor the file only
+        # and then report the data back into the appropriate file
 
-        self.__stop_flag[0] = False
+        # Immediately do a check for if the file exists - then if it does not we should create a file and do the following process, if not then follow the other process
 
-        token_ids = list(self.__token_data.keys())
+        if os.path.exists(self.__file_path):
+            print("Initializing read threads...")
 
-        num_cores = os.cpu_count()
-        total_items = len(token_ids)
+            read_thread = threading.Thread(target=Monitor.read_token_data, args=(self.__token_data, self.__file_path, self.__stop_flag))
+            read_thread.start()
+            self.__threads.append(read_thread)
 
-        per_core = total_items // num_cores
-        remainders = total_items % num_cores
-
-        cutoff_point = per_core * num_cores
-        split_group1 = token_ids[:cutoff_point]
-        split_group2 = token_ids[cutoff_point:]
-
-        groups = []
-        if per_core > 0:
-            for i in range(num_cores):
-                group = split_group1[i * per_core:(i + 1) * per_core]
-                groups.append(group)
-            
-            for i in range(remainders):
-                groups[i].append(split_group2[i])
+            print("Read thread initialization process complete")
 
         else:
-            for i in range(remainders):
-                groups.append(split_group2[i])
+            with open(self.__file_path, 'w') as f: # Create a new empty file to prevent the other from being made
+                pass
 
-        for i, group in enumerate(groups):
-            thread = threading.Thread(target=Monitor.monitor_tokens, args=(group, self.__token_data, self.__stop_flag, i))
-            thread.start()
-            self.__threads.append(thread)
+            print("Initializing monitor threads...")
 
-        print("Thread initialization process complete")
+            api = API()
+            token_info = api.get_token_info(self.__num_symbols)
+            self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)], 'init': False} for info in token_info}
+
+            self.__stop_flag[0] = False
+
+            token_ids = list(self.__token_data.keys())
+
+            num_cores = os.cpu_count()
+            total_items = len(token_ids)
+
+            per_core = total_items // num_cores
+            remainders = total_items % num_cores
+
+            cutoff_point = per_core * num_cores
+            split_group1 = token_ids[:cutoff_point]
+            split_group2 = token_ids[cutoff_point:]
+
+            groups = []
+            if per_core > 0:
+                for i in range(num_cores):
+                    group = split_group1[i * per_core:(i + 1) * per_core]
+                    groups.append(group)
+                
+                for i in range(remainders):
+                    groups[i].append(split_group2[i])
+
+            else:
+                for i in range(remainders):
+                    groups.append(split_group2[i])
+
+            for i, group in enumerate(groups):
+                monitor_thread = threading.Thread(target=Monitor.update_token_data, args=(group, self.__token_data, self.__stop_flag, i))
+                monitor_thread.start()
+                self.__threads.append(monitor_thread)
+
+            print("Monitor thread initialization process complete")
+
+            print("Initializing write thread...")
+            
+            write_thread = threading.Thread(target=Monitor.write_token_data, args=(self.__token_data, self.__file_path, self.__stop_flag))
+            write_thread.start()
+            self.__threads.append(write_thread)
+
+            print("Write thread initialization process complete")
+
 
     # --------------------------------------------------------------------------------------------------------------------------
 

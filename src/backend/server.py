@@ -10,13 +10,15 @@ if DEV:
     PAGE_SIZE = 50
 
 else:
-    SYMBOLS_TO_MONITOR = 500
+    SYMBOLS_TO_MONITOR = 10
     PAGE_SIZE = 50
 
 monitor = Monitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
 monitor.run() # This has been called twice again - I need a way to make gunicorn only launch the start process once and launch the main process twice - https://stackoverflow.com/questions/44292627/python-app-on-heroku-platform-seems-to-start-on-two-threads
-# The reason that I was getting different results is because I was getting information from two different processes that ea ch have their own thread monitor - sync it into one ?
-# Gunicorn flask configuration needs work - maybe bI could put my main process into a single thread which gets executed, or maybe I have my monitor running on another process which gets read from
+
+import time
+print("THIS IS THE BIG TEST HERE IT IS")
+time.sleep(10)
 
 app = Flask(__name__)
 cors = CORS(app)
