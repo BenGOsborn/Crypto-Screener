@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 import os
+import atexit
 from screener.monitor import Monitor
 
 DEV = "DYNO" not in os.environ
@@ -43,4 +44,5 @@ def get_page():
         return str(e), 400
 
 if __name__ == "__main__":
+    atexit.register(monitor.stop)
     app.run(debug=DEV)

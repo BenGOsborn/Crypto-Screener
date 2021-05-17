@@ -120,6 +120,14 @@ class Monitor:
 
         for thread in self.__threads:
             thread.join()
+        
+        print("Stopped all threads")  
+
+        print("Cleaning up files")
+
+        os.remove(self.__file_path)
+
+        print("Cleaned up files")
 
     def run(self):
         # On every deployment, the temp file manually deleted before launching the app - this is done automatically in Heroku
