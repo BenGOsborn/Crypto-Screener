@@ -141,8 +141,6 @@ class Monitor:
             token_info = api.get_token_info(self.__num_symbols)
             self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)], 'init': False} for info in token_info}
 
-            self.__stop_flag[0] = False
-
             token_ids = list(self.__token_data.keys())
 
             num_cores = os.cpu_count()
