@@ -73,19 +73,25 @@ export default function CoinScreener() {
                 {/* My idea is if the value will exceed the page min or will exceed the page max then it will not allow one to do it */}
                 {/* It is also going to shift the values around */}
                 {/* I am unsure how I am going to shift the "active" class around...? */}
+
+                {/* Shouldnt be able to click on one already selected */}
+                {/* If we click on the middle one, then it will swap over and activate the middle one - THIS IS ONLY GOING TO BE FOR SPECIAL CASES SUCH AS THE MIN PAGE AND MAX PAGE */}
+                {/* If we click on the left it will push the whole thing left and activate the middle one - UNLESS IT IS THELAST ONE */}
+                {/* If we click on the right, it will push the whole thing right and wil activate the middle one - UNLESS IT IS THE LAST ONE */}
+
                 <ul className="pagination">
-                    <li className={`page-item ${"disabled"}`}><a className="page-link" href="#" tabindex="-1">Previous</a></li>
+                    <li className={`page-item ${page === pageInfo.pageMin ? "disabled" : ""}`}><a className="page-link" href="#" onClick={() => setPage(page - 1) ? page > pageInfo.pageMin : null}>Previous</a></li>
 
-                    <li className="page-item"><a className="page-link" href="#">{page}</a></li>
-                    <li className="page-item active"><a className="page-link" href="#">{page + 1}</a></li>
-                    <li className="page-item"><a className="page-link" href="#">{page + 2}</a></li>
+                    {/* I need to disable them if they are active also */}
 
-                    <li className="page-item"><a className="page-link" href="#">Next</a></li>
+                    <li className={`page-item ${page == pageInfo.pageMin ? "active" : ""}`}><a className="page-link" href="#" onClick={e => setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a></li>
+                    <li className={`page-item ${page > pageInfo.pageMin && page < pageInfo.pageMax ? "active" : ""}`}><a className="page-link" href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a></li>
+                    <li className={`page-item ${page == pageInfo.pageMax ? "active" : ""}`}><a className="page-link" href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a></li>
+
+                    <li className={`page-item ${page === pageInfo.pageMax ? "disabled" : ""}`}><a className="page-link" href="#" onClick={() => setPage(page + 1) ? page < pageInfo.pageMax : null}>Next</a></li>
                 </ul>
 
             </div>
-
-            {/* Now I need some way of handling the pagination... */}
 
             <table className="table">
                 <thead className="thead-dark">
