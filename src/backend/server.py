@@ -15,7 +15,7 @@ else:
     PAGE_SIZE = 50
 
 monitor = Monitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
-monitor.run() # This has been called twice again - I need a way to make gunicorn only launch the start process once and launch the main process twice - https://stackoverflow.com/questions/44292627/python-app-on-heroku-platform-seems-to-start-on-two-threads
+monitor.run()
 
 app = Flask(__name__)
 cors = CORS(app)

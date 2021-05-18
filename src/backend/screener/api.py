@@ -25,6 +25,8 @@ class API:
             if request.ok:
                 form_data = request.json()
                 token_info += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_data]
+
+                print(f"Got token info for page {page_number + 1}")
             
             sleep(1) # Prevents reaching the rate limit of 100 for the API
 
