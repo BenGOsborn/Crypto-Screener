@@ -1,4 +1,4 @@
-import Table from '../components/table';
+import CoinScreener from '../components/coinScreener';
 
 export default function Main() {
   return (
@@ -12,7 +12,7 @@ export default function Main() {
             <p>Never miss out on the next coin boom again with a tool that ranks the best performing coins!</p>
           </div>
 
-          <Table />
+          <CoinScreener />
 
           
         </div>
