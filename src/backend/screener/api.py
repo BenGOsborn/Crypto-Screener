@@ -26,8 +26,6 @@ class API:
                 form_data = request.json()
                 token_info += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_data]
 
-                print(f"Got token info for page {page_number + 1}")
-
             # If this exceeds a specific amount of coins it could break - to fix this I could thread this, then have the monitor threads read from a pool of global token groups
 
         print(f"Got token info for {len(token_info)} tokens. Missing: {num_symbols - len(token_info)}")

@@ -63,7 +63,7 @@ class Monitor:
                 try:
                     token_history = api.get_token_history(token_id)
                     token_history_parsed = Monitor.parse_token_data(token_history)
-                    token_data[token_id]['token_data'] = token_history_parsed # Change the price data to token data instead
+                    token_data[token_id]['token_data'] = token_history_parsed
                     
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
@@ -146,7 +146,7 @@ class Monitor:
             token_info = api.get_token_info(self.__num_symbols)
             self.__token_data = {info['id']: {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False} for info in token_info}
 
-            token_ids = list(self.__token_data.keys())
+            token_ids = [info['id'] for info in token_info]
 
             num_cores = os.cpu_count()
             total_items = len(token_ids)
@@ -196,9 +196,9 @@ class Monitor:
             if values['init']:
                 true_num_symbols += 1
 
-        page_max = (true_num_symbols - 1) // self.__page_size + 1
+        page_max = np.max(true_num_symbols - 1, 1) // self.__page_size + 1
 
-        return page_min, page_max, self.__page_size if self.__page_size >= true_num_symbols else true_num_symbols, true_num_symbols
+        return page_min, page_max, self.__page_size, true_num_symbols
 
     def get_page_data(self, page_number, reverse=False):
         assert page_number >= self.__PAGE_MIN and page_number <= self.__PAGE_MAX, "Invalid page number!"
@@ -214,13 +214,13 @@ class Monitor:
         return formatted
 
 if __name__ == "__main__":
-    monitor = Monitor(100, 5)
+    monitor = Monitor(10, 5)
 
     monitor.run()
 
     sleep(10)
     
-    data = monitor.get_data(5)
-    print([(dic['token_info']['symbol'], dic['token_data'][6]) for dic in data])
+    data = monitor.get_data(1)
+    print(data)
 
     monitor.stop()
