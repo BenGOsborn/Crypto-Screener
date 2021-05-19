@@ -9,8 +9,6 @@ class Monitor:
     def __init__(self, num_symbols, page_size, file_path="tmp.json"):
         self.__num_symbols = num_symbols
         self.__page_size = page_size
-        self.__PAGE_MIN = 1
-        self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1
         self.__file_path = file_path
 
         self.__token_data = {}
@@ -27,22 +25,29 @@ class Monitor:
         return np.convolve(data, kernel, mode='valid')
 
     @staticmethod
-    def parse_price_data(price_data):
+    def parse_token_data(token_history):
         EPSILON = 1e-6
         WINDOW = 12
+        DECIMALS = 4
 
-        recent_price = Monitor.significant_figures(price_data[-1], 3) if price_data[-1] < 1 else round(price_data[-1], 3)
+        price_data = token_history[0]
+        volume_data = token_history[1]
+
+        recent_price = Monitor.significant_figures(price_data[-1], DECIMALS) if price_data[-1] < 1 else round(price_data[-1], DECIMALS)
+        recent_volume = Monitor.significant_figures(volume_data[-1], DECIMALS) if volume_data[-1] < 1 else round(volume_data[-1], DECIMALS)
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
-        price_changes = [Monitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, 3) for period in CHANGE_PERIODS]
         moving_price_changes = [(Monitor.exp_moving_average(price_data, WINDOW)[period:] / (Monitor.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
-        moon_score = 1
-        for price_change, reversed_change_period in zip(moving_price_changes, CHANGE_PERIODS[::-1]):
-            partial_moon_score = price_change ** (reversed_change_period ** 0.5)
+        normalizing_power = sum([np.math.sqrt(change_period) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
+        moon_score = np.math.log(np.mean(volume_data[:CHANGE_PERIODS[-1]]), 1e+6)
+        for moving_price_change, reversed_change_period in zip(moving_price_changes, CHANGE_PERIODS[::-1]):
+            partial_moon_score = (moving_price_change ** np.math.sqrt(reversed_change_period)) / (moving_price_change ** normalizing_power)
             moon_score *= partial_moon_score
+
+        price_changes = [Monitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, DECIMALS) for period in CHANGE_PERIODS]
         
-        return price_changes + [recent_price, moon_score]
+        return price_changes + [recent_price, recent_volume, moon_score]
 
     @staticmethod
     def update_token_data(token_ids, token_data, thread_id):
@@ -56,9 +61,9 @@ class Monitor:
         while True:
             for token_id in token_ids:
                 try:
-                    price_data = api.get_price_data(token_id)
-                    price_data_parsed = Monitor.parse_price_data(price_data)
-                    token_data[token_id]['price_data'] = price_data_parsed
+                    token_history = api.get_token_history(token_id)
+                    token_history_parsed = Monitor.parse_token_data(token_history)
+                    token_data[token_id]['token_data'] = token_history_parsed # Change the price data to token data instead
                     
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
@@ -139,7 +144,7 @@ class Monitor:
 
             api = API()
             token_info = api.get_token_info(self.__num_symbols)
-            self.__token_data = {info['id']: {'token_info': info, 'price_data': [-1000 for _ in range(7)], 'init': False} for info in token_info}
+            self.__token_data = {info['id']: {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False} for info in token_info}
 
             token_ids = list(self.__token_data.keys())
 
@@ -184,6 +189,12 @@ class Monitor:
     # --------------------------------------------------------------------------------------------------------------------------
 
     def get_page_request_info(self):
+        page_min = 1
+
+        # We need to go through and check how many token_ids have their init set to true, meaning that they have a value
+        # true_num_symbols = 
+
+        self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1
         return self.__PAGE_MIN, self.__PAGE_MAX, self.__page_size, self.__num_symbols
 
     def get_page_data(self, page_number, reverse=False):
@@ -192,22 +203,10 @@ class Monitor:
         start_index = (page_number - 1) * self.__page_size
         end_index = page_number * self.__page_size
 
-        sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
+        sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['token_data'][7], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
 
-        formatted = [[start_index + i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['price_data']] for i, token_id in enumerate(valid_tokens)]
-
-        return formatted
-    
-    # !!!!!!!!!!!!!!!!!! This method is unused and untested !!!!!!!!!!!!!!!!!!
-    def get_token_data(self, given_token_id, reverse=False):
-        sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['price_data'][6], reverse=(not reverse))
-        valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']]
-
-        indexed = {token_id: {'index': i + 1, **self.__token_data[token_id]} for i, token_id in enumerate(valid_tokens)}
-
-        data_dic = indexed[given_token_id]
-        formatted = [data_dic['index'], *data_dic['token_info'].values(), *data_dic['price_data']]
+        formatted = [[start_index + i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
 
@@ -219,6 +218,6 @@ if __name__ == "__main__":
     sleep(10)
     
     data = monitor.get_data(5)
-    print([(dic['token_info']['symbol'], dic['price_data'][6]) for dic in data])
+    print([(dic['token_info']['symbol'], dic['token_data'][6]) for dic in data])
 
     monitor.stop()
