@@ -191,11 +191,14 @@ class Monitor:
     def get_page_request_info(self):
         page_min = 1
 
-        # We need to go through and check how many token_ids have their init set to true, meaning that they have a value
-        # true_num_symbols = 
+        true_num_symbols = 0
+        for values in self.__token_data.values():
+            if values['init']:
+                true_num_symbols += 1
 
-        self.__PAGE_MAX = (self.__num_symbols - 1) // self.__page_size + 1
-        return self.__PAGE_MIN, self.__PAGE_MAX, self.__page_size, self.__num_symbols
+        page_max = (true_num_symbols - 1) // self.__page_size + 1
+
+        return page_min, page_max, self.__page_size if self.__page_size >= true_num_symbols else true_num_symbols, true_num_symbols
 
     def get_page_data(self, page_number, reverse=False):
         assert page_number >= self.__PAGE_MIN and page_number <= self.__PAGE_MAX, "Invalid page number!"
