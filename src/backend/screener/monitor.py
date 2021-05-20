@@ -43,7 +43,7 @@ class Monitor:
         # ---------------------------- Moon Score calculations -----------------------------------------
 
         # Base moon score
-        moon_score = np.math.log(moving_volume_changes[0])
+        moon_score = np.math.log(moving_volume_changes[0]) # This could potentially get broken with low cap coins
 
         # Represent the powers of the denominators of the price and the volume weights
         normalizing_price_power = sum([np.math.pow(change_period, 0.5) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
