@@ -38,12 +38,25 @@ class Monitor:
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
         moving_price_changes = [(Monitor.exp_moving_average(price_data, WINDOW)[period:] / (Monitor.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
+        moving_volume_changes = [(Monitor.exp_moving_average(volume_data, WINDOW)[period:] / (Monitor.exp_moving_average(volume_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
-        normalizing_power = sum([np.math.sqrt(change_period) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
+        # ---------------------------- Moon Score calculations -----------------------------------------
+
+        # Base moon score
         moon_score = np.math.log(np.mean(volume_data[:CHANGE_PERIODS[-1]]), 1e+6)
-        for moving_price_change, reversed_change_period in zip(moving_price_changes, CHANGE_PERIODS[::-1]):
-            partial_moon_score = (moving_price_change ** np.math.sqrt(reversed_change_period)) / (moving_price_change ** normalizing_power)
-            moon_score *= partial_moon_score
+
+        # Represent the powers of the denominators of the price and the volume weights
+        normalizing_price_power = sum([np.math.pow(change_period, 0.5) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
+        normalizing_volume_power = sum([np.math.pow(change_period, 0.25) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
+
+        for moving_price_change, moving_volume_change, reversed_change_period in zip(moving_price_changes, moving_volume_changes, CHANGE_PERIODS[::-1]):
+            # Calculate a portion of the moon score and multiply them with the current moon score
+            partial_price = (moving_price_change ** np.math.pow(reversed_change_period, 0.5)) / (moving_price_change ** normalizing_price_power)
+            partial_volume = (moving_volume_change ** np.math.pow(reversed_change_period, 0.25)) / (moving_volume_change ** normalizing_volume_power)
+
+            moon_score *= partial_price * partial_volume
+
+        # ---------------------------- End of Moon Score calculations -----------------------------------------
 
         price_changes = [Monitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, DECIMALS) for period in CHANGE_PERIODS]
         
