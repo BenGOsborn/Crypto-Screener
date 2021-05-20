@@ -30,18 +30,14 @@ def get_pages_info():
 @app.route("/api/get_page_data", methods=['POST'], strict_slashes=False)
 @cross_origin()
 def get_page():
-    try:
-        form_json = request.json
+    form_json = request.json
 
-        page_number = int(form_json['pageNumber'])
-        reverse = form_json['reverse']
+    page_number = int(form_json['pageNumber'])
+    reverse = form_json['reverse']
 
-        data = monitor.get_page_data(page_number, reverse=reverse)
+    data = monitor.get_page_data(page_number, reverse=reverse)
 
-        return jsonify(data), 200
-
-    except Exception as e:
-        return str(e), 400
+    return jsonify(data), 200
 
 if __name__ == "__main__":
     atexit.register(monitor.stop)

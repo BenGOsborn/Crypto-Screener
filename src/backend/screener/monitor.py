@@ -209,12 +209,14 @@ class Monitor:
             if values['init']:
                 true_num_symbols += 1
 
-        page_max = np.max(true_num_symbols - 1, 1) // self.__page_size + 1
+        page_max = max(true_num_symbols - 1, 1) // self.__page_size + 1
 
         return page_min, page_max, self.__page_size, true_num_symbols
 
     def get_page_data(self, page_number, reverse=False):
-        assert page_number >= self.__PAGE_MIN and page_number <= self.__PAGE_MAX, "Invalid page number!"
+        page_min, page_max, _, _ = self.get_page_request_info()
+
+        assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
         start_index = (page_number - 1) * self.__page_size
         end_index = page_number * self.__page_size
