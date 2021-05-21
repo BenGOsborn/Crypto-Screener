@@ -12,11 +12,11 @@ export default function Header() {
 
             <nav class="navbar navbar-expand navbar-dark bg-dark">
                 <div className="container">
-                    <div class="collapse navbar-collapse">
-                        <ul class="navbar-nav mx-auto">
-                            <li class="nav-item"><a class="nav-link" href="#">COIN SCREENER</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">HOT DISCUSSED COINS</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#">MORE COMING SOON...</a></li>
+                    <div className="collapse navbar-collapse">
+                        <ul className="navbar-nav mx-auto">
+                            <li className="nav-item"><a className="nav-link" href="#">COIN SCREENER</a></li>
+                            <li className="nav-item"><a className="nav-link" href="#">HOT DISCUSSED COINS</a></li>
+                            <li className="nav-item"><a className="nav-link" href="#">MORE COMING SOON...</a></li>
                         </ul>
                     </div>
                 </div>

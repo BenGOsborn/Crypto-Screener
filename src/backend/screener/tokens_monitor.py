@@ -35,11 +35,11 @@ class TokensMonitor:
         return p_value
 
     @staticmethod
-    def custom_log(x):
-        a = ((1 / np.math.log(10e+6)) - 1) / 10e+12
-        b = (2 - (1 / np.math.log(10e+6))) / 10e+6
+    def custom_log(x, base):
+        a = ((1 / np.math.log(base)) - 1) / (base ** 2)
+        b = (2 - (1 / np.math.log(base))) / base
 
-        return np.math.log(x, 10e+6) if x >= 10e+6 else a * (x ** 2) + b * x
+        return np.math.log(x, base) if x >= base else a * (x ** 2) + b * x
 
     @staticmethod
     def parse_token_data(token_history):
@@ -67,7 +67,7 @@ class TokensMonitor:
 
             temp_moon_score *= partial_price
         
-        moon_score *= TokensMonitor.custom_log(temp_moon_score)
+        moon_score *= TokensMonitor.custom_log(temp_moon_score, np.math.e)
 
         # ---------------------------- End of Moon Score calculations -----------------------------------------
 
