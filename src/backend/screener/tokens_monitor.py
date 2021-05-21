@@ -50,7 +50,7 @@ class TokensMonitor:
 
         # ---------------------------- Moon Score calculations -----------------------------------------
 
-        moon_score = (np.math.log(volume_data[-CHANGE_PERIODS[0]:], 1e+6) # This is the base volume it is at
+        moon_score = (np.math.log(np.mean(volume_data[-CHANGE_PERIODS[0]:]), 1e+6) # This is the base volume it is at
                      * TokensMonitor.unusual_value(volume_data[-CHANGE_PERIODS[-1]:-CHANGE_PERIODS[0]], np.mean(volume_data[-CHANGE_PERIODS[0]:]))) # This is the amount larger than its previous data
 
         temp_moon_score = 1
