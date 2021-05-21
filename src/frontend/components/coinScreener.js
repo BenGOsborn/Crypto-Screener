@@ -30,7 +30,7 @@ export default function CoinScreener() {
         .then(res => {
             const form = res.data;
             
-            setPageInfo(form);
+            setPageInfo(form); // Do one of these on every page load
             setError(false);
         })
         .catch(err => {
@@ -79,6 +79,7 @@ export default function CoinScreener() {
                 {/* If we click on the left it will push the whole thing left and activate the middle one - UNLESS IT IS THELAST ONE */}
                 {/* If we click on the right, it will push the whole thing right and wil activate the middle one - UNLESS IT IS THE LAST ONE */}
 
+                {/* Make it so this cant break when there arent any coins loaded in */}
                 <ul className="pagination">
                     <li className={`page-item ${page === pageInfo.pageMin ? "disabled" : ""}`}><a className="page-link" href="#" onClick={() => setPage(page - 1) ? page > pageInfo.pageMin : null}>Previous</a></li>
 
@@ -106,6 +107,7 @@ export default function CoinScreener() {
                         <th>Token 24hr % change</th>
                         <th>Token 48hr % change</th>
                         <th>Token price ($USD)</th>
+                        <th>24h token volume ($USD)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -119,7 +121,7 @@ export default function CoinScreener() {
                                 {/* Can I get my images to dynamically rescale */}
                                 <td><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width={50} height={50} /></a></td> 
                                 <td><a href={row[4]} target="_blank" style={tableTextStyle}>{row[3]}</a></td>
-                                <td><a href={row[4]} target="_blank" style={tableTextStyle}>{row[2]}</a></td>
+                                <td><a href={row[4]} target="_blank" style={tableTextStyle}>{row[2].toUpperCase()}</a></td>
 
                                 <td className={chooseColour(row[6])}>{row[6]}</td>
                                 <td className={chooseColour(row[7])}>{row[7]}</td>
@@ -127,7 +129,8 @@ export default function CoinScreener() {
                                 <td className={chooseColour(row[9])}>{row[9]}</td>
                                 <td className={chooseColour(row[10])}>{row[10]}</td>
 
-                                <td><a href={row[4]} target="_blank" style={tableTextStyle}>{row[11]}</a></td>
+                                <td>{row[11]}</td>
+                                <td>{row[12]}</td>
                             </tr>
                         );
                     })}
