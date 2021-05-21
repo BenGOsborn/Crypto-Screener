@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 import os
 import atexit
-from screener.monitor import Monitor
+from screener.tokens_monitor import TokensMonitor
 
 DEV = "DYNO" not in os.environ
 
@@ -14,7 +14,7 @@ else:
     SYMBOLS_TO_MONITOR = 6000
     PAGE_SIZE = 50
 
-monitor = Monitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
+monitor = TokensMonitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
 monitor.run()
 
 app = Flask(__name__)

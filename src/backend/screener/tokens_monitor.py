@@ -3,9 +3,10 @@ import threading
 from time import sleep
 import numpy as np
 import json
+import scipy.stats
 from screener.api import API
 
-class Monitor:
+class TokensMonitor:
     def __init__(self, num_symbols, page_size, file_path="tmp.json"):
         self.__num_symbols = num_symbols
         self.__page_size = page_size
@@ -25,6 +26,14 @@ class Monitor:
         return np.convolve(data, kernel, mode='valid')
 
     @staticmethod
+    def unusual_value(distribution, value):
+        mean = np.mean(distribution)
+        std = np.std(distribution)
+        p_value = scipy.stats.norm.cdf(value, mean, std)
+
+        return p_value
+
+    @staticmethod
     def parse_token_data(token_history):
         EPSILON = 1e-6
         WINDOW = 12
@@ -33,34 +42,28 @@ class Monitor:
         price_data = token_history[0]
         volume_data = token_history[1]
 
-        recent_price = Monitor.significant_figures(price_data[-1], DECIMALS) if price_data[-1] < 1 else round(price_data[-1], DECIMALS)
-        recent_volume = Monitor.significant_figures(volume_data[-1], DECIMALS) if volume_data[-1] < 1 else round(volume_data[-1], DECIMALS)
+        recent_price = TokensMonitor.significant_figures(price_data[-1], DECIMALS) if price_data[-1] < 1 else round(price_data[-1], DECIMALS)
+        recent_volume = TokensMonitor.significant_figures(volume_data[-1], DECIMALS) if volume_data[-1] < 1 else round(volume_data[-1], DECIMALS)
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
-        moving_price_changes = [(Monitor.exp_moving_average(price_data, WINDOW)[period:] / (Monitor.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
-        moving_volume_changes = [(Monitor.exp_moving_average(volume_data, WINDOW)[period:] / (Monitor.exp_moving_average(volume_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
+        moving_price_changes = [(TokensMonitor.exp_moving_average(price_data, WINDOW)[period:] / (TokensMonitor.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
 
         # ---------------------------- Moon Score calculations -----------------------------------------
 
-        # Base moon score
+        moon_score = (np.math.log(volume_data[-CHANGE_PERIODS[0]:], 1e+6) # This is the base volume it is at
+                     * TokensMonitor.unusual_value(volume_data[-CHANGE_PERIODS[-1]:-CHANGE_PERIODS[0]], np.mean(volume_data[-CHANGE_PERIODS[0]:]))) # This is the amount larger than its previous data
 
-        # I need some way of screening out really low overall volume coins
-        moon_score = moving_volume_changes[0] * (1 / (1 + np.math.exp(-2*(np.mean(volume_data) / 1e+6 - 1))))
-
-        # Represent the powers of the denominators of the price and the volume weights
-        normalizing_price_power = sum([np.math.pow(change_period, 0.5) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
-        normalizing_volume_power = sum([np.math.pow(change_period, 0.25) / np.math.pow(len(CHANGE_PERIODS), 2) for change_period in CHANGE_PERIODS])
-
-        # Price changes calculations
+        temp_moon_score = 1
         for moving_price_change, reversed_change_period in zip(moving_price_changes, CHANGE_PERIODS[::-1]):
-            # Calculate a portion of the moon score and multiply it with the current moon score
-            partial_price = (moving_price_change ** np.math.pow(reversed_change_period, 0.5)) / (moving_price_change ** normalizing_price_power)
+            partial_price = (moving_price_change ** np.math.sqrt(reversed_change_period)) # I want some way of normalizing this ?
 
-            moon_score *= partial_price
+            temp_moon_score *= partial_price
+        
+        moon_score *= np.math.log(temp_moon_score)
 
         # ---------------------------- End of Moon Score calculations -----------------------------------------
 
-        price_changes = [Monitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, DECIMALS) for period in CHANGE_PERIODS]
+        price_changes = [TokensMonitor.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, DECIMALS) for period in CHANGE_PERIODS]
         
         return price_changes + [recent_price, recent_volume, moon_score]
 
@@ -77,7 +80,7 @@ class Monitor:
             for token_id in token_ids:
                 try:
                     token_history = api.get_token_history(token_id)
-                    token_history_parsed = Monitor.parse_token_data(token_history)
+                    token_history_parsed = TokensMonitor.parse_token_data(token_history)
                     token_data[token_id]['token_data'] = token_history_parsed
                     
                     if not token_data[token_id]['init']:
@@ -145,7 +148,7 @@ class Monitor:
         if os.path.exists(self.__file_path):
             print("Initializing read threads...")
 
-            read_thread = threading.Thread(target=Monitor.read_token_data, args=(self.__token_data, self.__file_path))
+            read_thread = threading.Thread(target=TokensMonitor.read_token_data, args=(self.__token_data, self.__file_path))
             read_thread.setDaemon(True)
             read_thread.start()
 
@@ -187,7 +190,7 @@ class Monitor:
                     groups.append(split_group2[i])
 
             for i, group in enumerate(groups):
-                monitor_thread = threading.Thread(target=Monitor.update_token_data, args=(group, self.__token_data, i))
+                monitor_thread = threading.Thread(target=TokensMonitor.update_token_data, args=(group, self.__token_data, i))
                 monitor_thread.setDaemon(True)
                 monitor_thread.start()
 
@@ -195,7 +198,7 @@ class Monitor:
 
             print("Initializing write thread...")
             
-            write_thread = threading.Thread(target=Monitor.write_token_data, args=(self.__token_data, self.__file_path))
+            write_thread = threading.Thread(target=TokensMonitor.write_token_data, args=(self.__token_data, self.__file_path))
             write_thread.setDaemon(True)
             write_thread.start()
 
@@ -231,7 +234,7 @@ class Monitor:
         return formatted
 
 if __name__ == "__main__":
-    monitor = Monitor(10, 5)
+    monitor = TokensMonitor(10, 5)
 
     monitor.run()
 
