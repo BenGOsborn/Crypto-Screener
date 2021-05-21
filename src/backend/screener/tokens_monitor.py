@@ -35,6 +35,13 @@ class TokensMonitor:
         return p_value
 
     @staticmethod
+    def custom_log(x):
+        a = ((1 / np.math.log(10e+6)) - 1) / 10e+12
+        b = (2 - (1 / np.math.log(10e+6))) / 10e+6
+
+        return np.math.log(x, 10e+6) if x >= 10e+6 else a * (x ** 2) + b * x
+
+    @staticmethod
     def parse_token_data(token_history):
         EPSILON = 1e-6
         WINDOW = 12
@@ -51,7 +58,7 @@ class TokensMonitor:
 
         # ---------------------------- Moon Score calculations -----------------------------------------
 
-        moon_score = (np.math.log(np.mean(volume_data[-CHANGE_PERIODS[0]:]), 1e+6) # This is the base volume it is at
+        moon_score = (TokensMonitor.custom_log(np.mean(volume_data[-CHANGE_PERIODS[0]:]), 1e+6) # This is the base volume it is at
                      * TokensMonitor.unusual_value(volume_data[-CHANGE_PERIODS[-1]:-CHANGE_PERIODS[0]], np.mean(volume_data[-CHANGE_PERIODS[0]:]))) # This is the amount larger than its previous data
 
         temp_moon_score = 1
@@ -60,7 +67,7 @@ class TokensMonitor:
 
             temp_moon_score *= partial_price
         
-        moon_score *= np.math.log(temp_moon_score)
+        moon_score *= TokensMonitor.custom_log(temp_moon_score)
 
         # ---------------------------- End of Moon Score calculations -----------------------------------------
 
