@@ -3,7 +3,6 @@ import threading
 from time import sleep
 import numpy as np
 import json
-import scipy.stats
 from screener.api import API
 
 class TokensMonitor:
@@ -26,10 +25,12 @@ class TokensMonitor:
         return np.convolve(data, kernel, mode='valid')
 
     @staticmethod
-    def unusual_value(distribution, value):
+    def unusual_value(distribution, test_value):
         mean = np.mean(distribution)
         std = np.std(distribution)
-        p_value = scipy.stats.norm.cdf(value, mean, std)
+
+        distribution = np.random.normal(loc=mean, scale=std, size=10000)
+        p_value = np.sum(distribution < test_value) / float(len(distribution))
 
         return p_value
 
