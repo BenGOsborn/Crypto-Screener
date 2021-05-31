@@ -20,37 +20,38 @@ class TokensMonitor:
         self.__token_data = {}
 
     @staticmethod
-    def update_token_data(token_ids, token_data, thread_id):
+    def update_token_data_2(num_symbols, token_data):
         api = API()
-        header = f"Thread update {thread_id}: "
+        header = f"Thread update: "
 
-        print(f"{header}Launched and ready to start")
-        sleep(60)
         print(f"{header}Starting")
 
         while True:
-            for token_id in token_ids:
+            token_info = api.get_token_info(num_symbols)
+
+            # Now I need to go through and implement some sort of check which will remove any tokens that are not a part of the new version and will add ones
+            # that are a part of the new one and will keep it if it is a part of the new one
+            # This will require me to initialize the token data in this one instead and just parse in the shared dictionary
+
+            for info in token_info:
                 try:
-                    token_history = api.get_token_history(token_id)
-                    token_history_parsed = TokenMath.parse_token_data(token_history)
-                    token_data[token_id]['token_data'] = token_history_parsed
-                    
+                    token_id = info['id']
+                    token_history_raw = api.get_token_history(token_id)
+                    token_history_parsed = TokenMath.parse_token_data(token_history_raw)
+                    token_data[token_id]['token_id'] = token_history_parsed
+
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
-
-                    print(f"{header}Updated data for {token_id}")
-
+                
                 except Exception as e:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
-                
-                sleep(8) # Prevents reaching the rate limit of 100 for the API
+
+                sleep(0.7)
 
     @staticmethod
     def write_token_data(data_object, file_path):
-        header = f"Thread write 0: "
+        header = f"Thread write: "
 
-        print(f"{header}Launched and ready to start")
-        sleep(60)
         print(f"{header}Starting")
 
         while True:
@@ -67,10 +68,8 @@ class TokensMonitor:
 
     @staticmethod
     def read_token_data(data_object, file_path):
-        header = f"Thread read 0: "
+        header = f"Thread read: "
 
-        print(f"{header}Launched and ready to start")
-        sleep(60)
         print(f"{header}Starting")
 
         while True:

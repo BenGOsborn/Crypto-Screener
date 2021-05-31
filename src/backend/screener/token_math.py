@@ -2,7 +2,7 @@ import numpy as np
 
 class TokenMath:
     """
-    A collection of math functions for tokens
+    A collection of math functions for the tokens
     """
 
     @staticmethod
@@ -22,8 +22,8 @@ class TokenMath:
         """
         Calculates an exponential moving average of the given time series data over the specified window
 
-        :param data The time series data to calculate the moving average over
-        :param window The time period to calculate the moving average over
+        :param data A numpy array containing the time series data to calculate the moving average over
+        :param window A number which represents the time period to calculate the moving average over
 
         :return The exponential moving average of the given data over the given window
         """
@@ -37,10 +37,10 @@ class TokenMath:
         """
         Determines the probability of the values below the test value occuring for the distribution
 
-        :param distribution Distribution to compare against
-        :param test_value Value to test against the distribution
+        :param distribution A numpy array containing the distribution to compare against
+        :param test_value A numerical value to test against the distribution
 
-        :return The probability of the elements below the test value occuring
+        :return A number that represents the probability of the elements below the test value occuring
         """
         mean = np.mean(distribution)
         std = np.std(distribution)
@@ -52,6 +52,14 @@ class TokenMath:
 
     @staticmethod
     def custom_log(x, base):
+        """
+        A custom logarithmic function that instead of trailing to negative infinity trails to 0
+
+        :param x The number to apply the function to
+        :param base A number that represents the base of the logarithm
+
+        :return A number which represents the value with the custom log function applied
+        """
         a = ((1 / np.math.log(base)) - 1) / (base ** 2)
         b = (2 - (1 / np.math.log(base))) / base
 
@@ -59,6 +67,13 @@ class TokenMath:
 
     @staticmethod
     def parse_token_data(token_history):
+        """
+        Parses the token history data and extracts the price changes, prices, volumes, and a ranking of the token
+
+        :param token_history A numpy array containing the price history and the volume history of the token in hours 
+
+        :return An array which contains the percentage price changes over the past 2 hours, 6 hours, 12 hours, 24 hours, and 48 hours, as well as the recent price of the token, the recent 24h volume of the token, and a moon score ranking which is used to rank tokens - the higher the score the better the token
+        """
         EPSILON = 1e-6
         WINDOW = 12
         DECIMALS = 4

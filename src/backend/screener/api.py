@@ -10,11 +10,11 @@ class API:
 
         self.__session = requests.Session()
 
-    def get_token_info(self, num_symbols):
-        print(f"Getting token info for {num_symbols} tokens")
+    def get_token_info(self, num_tokens):
+        print(f"Getting token info for {num_tokens} tokens")
 
         PER_PAGE = 250
-        num_pages = (num_symbols - 1) // PER_PAGE + 1
+        num_pages = (num_tokens - 1) // PER_PAGE + 1
 
         token_info = []
 
@@ -23,27 +23,29 @@ class API:
             request = self.__session.get(req_url)
 
             if request.ok:
-                form_data = request.json()
-                token_info += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_data]
+                form_json = request.json()
+                token_info += [{'id': data['id'], 'symbol': data['symbol'], 'name': data['name'], 'url': f"https://www.coingecko.com/en/coins/{data['id']}", 'image': data['image']} for data in form_json]
 
-            # If this exceeds a specific amount of coins it could break - to fix this I could thread this, then have the monitor threads read from a pool of global token groups
+            sleep(0.7) # Cooldown timer to prevent the API from blocking the server
 
-        print(f"Got token info for {len(token_info)} tokens. Missing: {num_symbols - len(token_info)}")
+        # -------------------------- THIS HAS PROBLEMS TO DO WITH THE PAGE SIZE ----------------------------------------
+        print(f"Got token info for {len(token_info)} tokens. Missing: {num_tokens - len(token_info)}")
         
-        return token_info[:num_symbols]
+        return token_info[:num_tokens]
 
-    def get_token_history(self, symbol_id):
+    def get_token_history(self, token_id):
         DAYS = 7
-        req_url = f"{self.__COINGECKO_URL}/coins/{symbol_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={DAYS}"
+        req_url = f"{self.__COINGECKO_URL}/coins/{token_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={DAYS}"
         request = self.__session.get(req_url) 
 
         if request.ok:
             form_json = request.json()
             token_data = np.array([form_json['prices'], form_json['total_volumes']])
 
-            return token_data[:, :, 1]
+            return token_data[:, :, 1] # Remove the column that contains the times the events occured
 
 if __name__ == "__main__":
     api = API()
 
-    print(api.get_token_history('csp-dao-network'))
+    print(api.get_token_info(20))
+
