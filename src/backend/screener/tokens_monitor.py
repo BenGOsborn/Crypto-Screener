@@ -6,7 +6,7 @@ import json
 from screener.api import API
 
 # Changes to be made
-#  - Put all fo the static math functions into their own class
+#  - Put all of the static math functions into their own class
 #  - Create a single daemon thread that runs if there is no file, and goes through and gets the files with a pause inbetween
 #  - Then after the coins have been monitored, scrape down ALL (not just the fixed amount) of new coins, update the num symbols and modify the dictionary to have the new symbols and remove the old ones
 
