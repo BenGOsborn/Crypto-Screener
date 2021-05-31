@@ -6,33 +6,46 @@ import json
 from screener.api import API
 from screener.token_math import TokenMath
 
-# Changes to be made
-#  - Put all of the static math functions into their own class
-#  - Create a single daemon thread that runs if there is no file, and goes through and gets the files with a pause inbetween
-#  - Then after the coins have been monitored, scrape down ALL (not just the fixed amount) of new coins, update the num symbols and modify the dictionary to have the new symbols and remove the old ones
-
 class TokensMonitor:
-    def __init__(self, num_symbols, page_size, file_path="tmp.json"):
-        self.__num_symbols = num_symbols
+    """
+    Monitors a specified number of tokens and sorts them based on their performance for use
+
+    :param num_tokens An integer that represents the number of tokens to monitor
+    :param page_size An integer that represents the number of tokens returned per page
+    :param file_path A string that represents the file path of the temporary data sharing file
+    """
+
+    def __init__(self, num_tokens, page_size, file_path="tmp.json"):
+        self.__num_tokens = num_tokens
         self.__page_size = page_size
         self.__file_path = file_path
 
         self.__token_data = {}
 
     @staticmethod
-    def update_token_data_2(num_symbols, token_data):
+    def update_token_data(num_tokens, token_data):
         api = API()
         header = f"Thread update: "
 
         print(f"{header}Starting")
 
+        # Update the token data while this thread runs
         while True:
-            token_info = api.get_token_info(num_symbols)
+            # Get the token info and ids
+            token_info = api.get_token_info(num_tokens)
+            token_ids = [info['id'] for info in token_info]
 
-            # Now I need to go through and implement some sort of check which will remove any tokens that are not a part of the new version and will add ones
-            # that are a part of the new one and will keep it if it is a part of the new one
-            # This will require me to initialize the token data in this one instead and just parse in the shared dictionary
+            # If the token id from the token data is not in the new token ids then delete it
+            for token_id in token_data.keys():
+                if token_id not in token_ids:
+                    del token_data[token_id]
 
+            # If a new token id is not in the original token data then add it
+            for token_id in token_ids:
+                if token_id not in token_data.keys():
+                    token_data[token_id] = {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
+
+            # Iterate over each token and update its data
             for info in token_info:
                 try:
                     token_id = info['id']
@@ -64,7 +77,7 @@ class TokensMonitor:
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
 
-            sleep(6)
+            sleep(10)
 
     @staticmethod
     def read_token_data(data_object, file_path):
@@ -83,9 +96,10 @@ class TokensMonitor:
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
             
-            sleep(6)
+            sleep(10)
         
     def stop(self):
+        # Delete the shared data file to let future instances of the program know there are no monitor threads
         print("Stopping...")
 
         if os.path.exists(self.__file_path):
@@ -94,92 +108,61 @@ class TokensMonitor:
             os.remove(self.__file_path)
 
     def run(self):
-        # On every deployment, the temp file manually deleted before launching the app - this is done automatically in Heroku
-
-        if os.path.exists(self.__file_path):
-            print("Initializing read threads...")
+        if os.path.exists(self.__file_path): # If the path to the file exists then it means the main update thread is running and we should read from that file which will contain the updated data
+            # Create a new daemon thread to run the reader
+            print("Initializing read thread...")
 
             read_thread = threading.Thread(target=TokensMonitor.read_token_data, args=(self.__token_data, self.__file_path))
             read_thread.setDaemon(True)
             read_thread.start()
 
-            print("Read thread initialization process complete")
-
-        else:
+        else: # If there is no file, it means an updater thread doesnt exist and we need to create one
             with open(self.__file_path, 'w') as f: # Create a new empty file to prevent the other from being made
                 pass
 
-            print("Initializing monitor threads...")
+            # Create a new daemon thread to run the updater
+            print("Initializing monitor thread...")
 
-            api = API()
-            token_info = api.get_token_info(self.__num_symbols)
-            self.__token_data = {info['id']: {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False} for info in token_info}
+            monitor_thread = threading.Thread(target=TokensMonitor.update_token_data, args=(self.__num_tokens, self.__token_data))
+            monitor_thread.setDaemon(True)
+            monitor_thread.start()
 
-            token_ids = [info['id'] for info in token_info]
-
-            num_cores = os.cpu_count()
-            total_items = len(token_ids)
-
-            per_core = total_items // num_cores
-            remainders = total_items % num_cores
-
-            cutoff_point = per_core * num_cores
-            split_group1 = token_ids[:cutoff_point]
-            split_group2 = token_ids[cutoff_point:]
-
-            groups = []
-            if per_core > 0:
-                for i in range(num_cores):
-                    group = split_group1[i * per_core:(i + 1) * per_core]
-                    groups.append(group)
-                
-                for i in range(remainders):
-                    groups[i].append(split_group2[i])
-
-            else:
-                for i in range(remainders):
-                    groups.append(split_group2[i])
-
-            for i, group in enumerate(groups):
-                monitor_thread = threading.Thread(target=TokensMonitor.update_token_data, args=(group, self.__token_data, i))
-                monitor_thread.setDaemon(True)
-                monitor_thread.start()
-
-            print("Monitor thread initialization process complete")
-
+            # Create a new daemon thread to run the writer
             print("Initializing write thread...")
             
             write_thread = threading.Thread(target=TokensMonitor.write_token_data, args=(self.__token_data, self.__file_path))
             write_thread.setDaemon(True)
             write_thread.start()
 
-            print("Write thread initialization process complete")
-
-    # --------------------------------------------------------------------------------------------------------------------------
-
     def get_page_request_info(self):
+        # Set the minimum number of pages that can be returned (should always be one page)
         page_min = 1
 
-        true_num_symbols = 0
+        # Count how many tokens there are that have data
+        true_num_tokens = 0
         for values in self.__token_data.values():
             if values['init']:
-                true_num_symbols += 1
+                true_num_tokens += 1
 
-        page_max = max(true_num_symbols - 1, 1) // self.__page_size + 1
+        # Set the max number of pages given the number of tokens
+        page_max = max(true_num_tokens - 1, 1) // self.__page_size + 1
 
-        return page_min, page_max, self.__page_size, true_num_symbols
+        return page_min, page_max, self.__page_size, true_num_tokens
 
     def get_page_data(self, page_number, reverse=False):
         page_min, page_max, _, _ = self.get_page_request_info()
 
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
+        # Calculate the indices that are required to slice the sorted token array to get the right page
         start_index = (page_number - 1) * self.__page_size
         end_index = page_number * self.__page_size
 
+        # Sort the tokens by their moon score ranking in descending order and remove the invalid tokens
         sorted_token_ids = sorted(self.__token_data, key=lambda x: self.__token_data[x]['token_data'][7], reverse=(not reverse))
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
 
+        # Format the layout of the returned token data
         formatted = [[start_index + i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted

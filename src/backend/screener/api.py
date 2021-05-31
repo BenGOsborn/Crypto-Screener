@@ -4,6 +4,10 @@ from time import sleep
 import numpy as np
 
 class API:
+    """
+    Fetches token data from the CoinGecko API
+    """
+
     def __init__(self):
         self.__COINGECKO_URL = "https://api.coingecko.com/api/v3"
         self.__VS_CURRENCY = "USD"
@@ -11,6 +15,13 @@ class API:
         self.__session = requests.Session()
 
     def get_token_info(self, num_tokens):
+        """
+        Gets the information for a given number of tokens
+
+        :param num_tokens A number that represents the number of tokens to return information for
+
+        :return An array containing the information for each token
+        """
         print(f"Getting token info for {num_tokens} tokens")
 
         PER_PAGE = 250
@@ -33,9 +44,18 @@ class API:
         
         return token_info[:num_tokens]
 
-    def get_token_history(self, token_id):
-        DAYS = 7
-        req_url = f"{self.__COINGECKO_URL}/coins/{token_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={DAYS}"
+    def get_token_history(self, token_id, days=7):
+        """ 
+        Gets the price and 24h volume history of a specified token
+
+        :param token_id A string that is the ID of the token to get the data of
+        :param days An integer that represents the number of days to return data for
+
+        :return An array that contains the price and 24h volume data for the specified number of days with hourly intervals
+        """ 
+        assert days > 1, "Number of days must be greater then 1"
+
+        req_url = f"{self.__COINGECKO_URL}/coins/{token_id}/market_chart?vs_currency={self.__VS_CURRENCY}&days={days}"
         request = self.__session.get(req_url) 
 
         if request.ok:
