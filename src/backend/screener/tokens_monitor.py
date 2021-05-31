@@ -57,10 +57,12 @@ class TokensMonitor:
                 sleep(0.7)
 
                 try:
+                    # Get the raw token history, parse its data then update the global data for that token
                     token_history_raw = api.get_token_history(token_id)
                     token_history_parsed = TokenMath.parse_token_data(token_history_raw)
-                    token_data[token_id]['token_id'] = token_history_parsed
+                    token_data[token_id]['token_data'] = token_history_parsed
 
+                    # Init a token if it has not been init before
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
                     
