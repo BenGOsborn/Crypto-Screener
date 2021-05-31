@@ -52,17 +52,18 @@ class TokensMonitor:
                     token_data[token_id] = {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
 
             # Iterate over each token and update its data
-            for info in token_info:
+            for token_id in valid_token_ids:
                 sleep(0.7)
 
                 try:
-                    token_id = info['id']
                     token_history_raw = api.get_token_history(token_id)
                     token_history_parsed = TokenMath.parse_token_data(token_history_raw)
                     token_data[token_id]['token_id'] = token_history_parsed
 
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
+                    
+                    print(f"{header}Updated data for token {token_id}")
                 
                 except Exception as e:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
