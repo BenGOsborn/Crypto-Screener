@@ -39,10 +39,11 @@ class API:
 
             sleep(0.7) # Cooldown timer to prevent the API from blocking the server
 
-        # -------------------------- THIS HAS PROBLEMS TO DO WITH THE PAGE SIZE ----------------------------------------
+        token_info = token_info[:num_tokens]
+
         print(f"Got token info for {len(token_info)} tokens. Missing: {num_tokens - len(token_info)}")
         
-        return token_info[:num_tokens]
+        return token_info
 
     def get_token_history(self, token_id, days=7):
         """ 
