@@ -1,7 +1,6 @@
 import os
 import threading
 from time import sleep
-import numpy as np
 import json
 from screener.api import API
 from screener.token_math import TokenMath
@@ -39,20 +38,23 @@ class TokensMonitor:
         while True:
             # Get the token info and ids
             token_info = api.get_token_info(num_tokens)
-            token_ids = [info['id'] for info in token_info]
+            valid_token_ids = [info['id'] for info in token_info]
 
             # If the token id from the token data is not in the new token ids then delete it
             for token_id in token_data.keys():
-                if token_id not in token_ids:
+                if token_id not in valid_token_ids:
                     del token_data[token_id]
 
             # If a new token id is not in the original token data then add it
-            for token_id in token_ids:
+            for info in token_info:
+                token_id = info['id']
                 if token_id not in token_data.keys():
                     token_data[token_id] = {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
 
             # Iterate over each token and update its data
             for info in token_info:
+                sleep(0.7)
+
                 try:
                     token_id = info['id']
                     token_history_raw = api.get_token_history(token_id)
@@ -64,8 +66,6 @@ class TokensMonitor:
                 
                 except Exception as e:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
-
-                sleep(0.7)
 
     @staticmethod
     def write_token_data(data_object, file_path):
@@ -80,6 +80,8 @@ class TokensMonitor:
         print(f"{header}Starting")
 
         while True:
+            sleep(10)
+
             try:
                 with open(file_path, 'w') as f:
                     json.dump(data_object, f)
@@ -88,8 +90,6 @@ class TokensMonitor:
             
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
-
-            sleep(10)
 
     @staticmethod
     def read_token_data(data_object, file_path):
@@ -104,6 +104,8 @@ class TokensMonitor:
         print(f"{header}Starting")
 
         while True:
+            sleep(10)
+
             try:
                 with open(file_path, 'r') as f:
                     data = json.load(f)
@@ -113,8 +115,6 @@ class TokensMonitor:
             
             except Exception as e:
                 print(f"{header}Encountered exception '{e}'")
-            
-            sleep(10)
         
     def stop(self):
         """

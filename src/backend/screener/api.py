@@ -1,4 +1,3 @@
-import datetime
 import requests
 from time import sleep
 import numpy as np
