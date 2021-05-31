@@ -24,6 +24,12 @@ class TokensMonitor:
 
     @staticmethod
     def update_token_data(num_tokens, token_data):
+        """
+        Monitors and updates the token data
+
+        :param num_tokens An integer that represents the number of tokens to update
+        :param token_data A dictionary that stores the data for the tokens
+        """
         api = API()
         header = f"Thread update: "
 
@@ -63,6 +69,12 @@ class TokensMonitor:
 
     @staticmethod
     def write_token_data(data_object, file_path):
+        """
+        Writes the token data to a shared file
+
+        :param data_object The data object to be written to the file
+        :param file_path A string representing the path to the shared data file
+        """
         header = f"Thread write: "
 
         print(f"{header}Starting")
@@ -81,6 +93,12 @@ class TokensMonitor:
 
     @staticmethod
     def read_token_data(data_object, file_path):
+        """
+        Reads the token data from the shared file
+
+        :param data_object The data object to update with the files data
+        :param file_path A string representing the path to the shared data file
+        """
         header = f"Thread read: "
 
         print(f"{header}Starting")
@@ -99,6 +117,9 @@ class TokensMonitor:
             sleep(10)
         
     def stop(self):
+        """
+        Cleans up the program on exit
+        """
         # Delete the shared data file to let future instances of the program know there are no monitor threads
         print("Stopping...")
 
@@ -108,6 +129,9 @@ class TokensMonitor:
             os.remove(self.__file_path)
 
     def run(self):
+        """
+        Spawns the process which updates the token data
+        """
         if os.path.exists(self.__file_path): # If the path to the file exists then it means the main update thread is running and we should read from that file which will contain the updated data
             # Create a new daemon thread to run the reader
             print("Initializing read thread...")
@@ -135,6 +159,11 @@ class TokensMonitor:
             write_thread.start()
 
     def get_page_request_info(self):
+        """
+        Get the data regarding the limits of the current data
+
+        :return A tuple that contains numbers that represent the minimum page that can be requested, the maximum page that can be requested, the number of tokens per page, and the current number of tokens with data
+        """
         # Set the minimum number of pages that can be returned (should always be one page)
         page_min = 1
 
@@ -150,6 +179,14 @@ class TokensMonitor:
         return page_min, page_max, self.__page_size, true_num_tokens
 
     def get_page_data(self, page_number, reverse=False):
+        """
+        Get the tokens for a specific page
+
+        :param page_number An integer that represents the page number of the data to be viewed
+        :param reverse A boolean that determines if the tokens and their data should be ordered from best to worst or worst to best
+
+        :return An array containing the data for each token on the specified page
+        """
         page_min, page_max, _, _ = self.get_page_request_info()
 
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
