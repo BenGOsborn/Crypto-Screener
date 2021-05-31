@@ -25,7 +25,7 @@ class TokenMath:
         :param data The time series data to calculate the moving average over
         :param window The time period to calculate the moving average over
 
-        :retrun The exponential moving average of the given data over the given window
+        :return The exponential moving average of the given data over the given window
         """
         kernel = np.exp(np.linspace(-1, 0, window))
         kernel /= kernel.sum()
@@ -37,7 +37,10 @@ class TokenMath:
         """
         Determines the probability of the values below the test value occuring for the distribution
 
-        :param distribution the numbers
+        :param distribution Distribution to compare against
+        :param test_value Value to test against the distribution
+
+        :return The probability of the elements below the test value occuring
         """
         mean = np.mean(distribution)
         std = np.std(distribution)
