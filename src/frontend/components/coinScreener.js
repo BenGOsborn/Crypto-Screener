@@ -72,8 +72,8 @@ export default function CoinScreener() {
                     <tr>
                         <th>
                             <a className="textWhite" href="#" onClick={e => {e.preventDefault();setReversed(!reverse)}}>{reverse ? 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
                         </th>
                         <th>Token name</th>
                         <th>Token 2hr change</th>
@@ -93,7 +93,6 @@ export default function CoinScreener() {
 
                                 <th className="textLight">{row[0]}</th>
 
-                                {/* Can I get my images to dynamically rescale */}
                                 <td className="wrapText">
                                     <span><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width="25" height="25" /></a></span>
                                     <span><a className="textWhite" href={row[4]} target="_blank">{row[3]}</a></span>
@@ -118,13 +117,13 @@ export default function CoinScreener() {
 
             <div className="container">
                 <div className={styles.pagination}>
-                    <a href="#" onClick={e => page > pageInfo.pageMin ? setPage(page - 1) : null}>Previous</a>
+                    <a href="#" onClick={e => {e.preventDefault();page > pageInfo.pageMin ? setPage(page - 1) : null}}>Previous</a>
 
-                    <a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
-                    <a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a>
-                    <a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>
+                    <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
+                    <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a>
+                    <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>
 
-                    <a href="#" onClick={e => page < pageInfo.pageMax ? setPage(page + 1) : null}>Next</a>
+                    <a href="#" onClick={e => {e.preventDefault();page < pageInfo.pageMax ? setPage(page + 1) : null}}>Next</a>
                 </div>
             </div>
 

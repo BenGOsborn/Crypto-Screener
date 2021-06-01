@@ -5,6 +5,10 @@ export default function Header() {
     return (
         <div className="Header">
 
+            <div className={styles.fixedHeader}>
+                <h4>NOTHING ON THIS WEBSITE SHOULD BE CONSIDERED FINANCIAL ADVICE. I AM NOT RESPONSIBLE FOR ANY MONEY YOU MAY LOSE.</h4>
+            </div>
+
             <br />
 
             <div className="container">
@@ -12,7 +16,6 @@ export default function Header() {
                     <h1>CRYPTOSCREENER</h1>
                     <h2>By <a href="https://github.com/BenGOsborn" target="_blank" style={{color: 'inherit'}}>Ben Osborn</a></h2>
                     <h3>Ranks crypto tokens based on their price changes, volume, and volume abnormality to help you find the ones that are performing the best!</h3>
-                    <h4>NOTHING ON THIS WEBSITE SHOULD BE TAKEN AS FINANCIAL ADVICE. WE ARE NOT RESPONSIBLE FOR ANY MONEY YOU MAY LOSE.</h4>
                 </div>
             </div>
 
