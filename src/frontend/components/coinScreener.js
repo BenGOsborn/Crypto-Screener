@@ -77,8 +77,8 @@ export default function CoinScreener() {
                         </th>
                         <th>Token name</th>
                         <th>Token 2hr change</th>
-                        <th>Token 6hr change</th>
-                        <th>Token 12hr change</th>
+                        {/* <th>Token 6hr change</th> */}
+                        {/* <th>Token 12hr change</th> */}
                         <th>Token 24hr change</th>
                         <th>Token 48hr change</th>
                         <th>Token price ($USD)</th>
@@ -94,15 +94,15 @@ export default function CoinScreener() {
                                 <th className="textLight">{row[0]}</th>
 
                                 {/* Can I get my images to dynamically rescale */}
-                                <td>
+                                <td className="wrapText">
                                     <span><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width="25" height="25" /></a></span>
                                     <span><a className="textWhite" href={row[4]} target="_blank">{row[3]}</a></span>
                                     <span><a className="textLight" href={row[4]} target="_blank">({row[2].toUpperCase()})</a></span>
                                </td>
 
                                 <td className={chooseColour(row[6])}>{parseNumber(row[6])}%</td>
-                                <td className={chooseColour(row[7])}>{parseNumber(row[7])}%</td>
-                                <td className={chooseColour(row[8])}>{parseNumber(row[8])}%</td>
+                                {/* <td className={chooseColour(row[7])}>{parseNumber(row[7])}%</td> */}
+                                {/* <td className={chooseColour(row[8])}>{parseNumber(row[8])}%</td> */}
                                 <td className={chooseColour(row[9])}>{parseNumber(row[9])}%</td>
                                 <td className={chooseColour(row[10])}>{parseNumber(row[10])}%</td>
 
@@ -113,6 +113,8 @@ export default function CoinScreener() {
                     })}
                 </tbody>
             </table>
+
+            <br />
 
             <div className="container">
                 <div className={styles.pagination}>

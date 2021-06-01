@@ -1,10 +1,9 @@
 /* Table */
 
+/* Normal size */
 .contentTable {
     border-collapse: collapse;
-    margin: 25px 0;
     font-size: 0.9em;
-    min-width: 500px;
     border-radius: 10px;
     overflow: hidden;
 }
@@ -33,6 +32,35 @@
 
 .contentTable tbody tr:last-of-type {
     border-bottom: none;
+}
+
+/* Smaller screens */
+@media (max-width: 1000px) {
+    .contentTable {
+        font-size: 0.8em;
+    }
+
+    .contentTable th, .contentTable td {
+        padding: 20px 6px;
+    }
+
+    .contentTable span {
+        padding: 3px;
+    }
+}
+
+@media (max-width: 700px) {
+    .contentTable {
+        font-size: 0.65em;
+    }
+
+    .contentTable th, .contentTable td {
+        padding: 20px 1.5px;
+    }
+
+    .contentTable span {
+        padding: 2px;
+    }
 }
 
 /* Pagination */
