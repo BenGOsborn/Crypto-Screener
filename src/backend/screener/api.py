@@ -63,9 +63,3 @@ class API:
             token_data = np.array([form_json['prices'], form_json['total_volumes']])
 
             return token_data[:, :, 1] # Remove the column that contains the times the events occured
-
-if __name__ == "__main__":
-    api = API()
-
-    print(api.get_token_info(20))
-

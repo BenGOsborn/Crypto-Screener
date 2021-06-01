@@ -6,18 +6,6 @@ class TokenMath:
     """
 
     @staticmethod
-    def significant_figures(number, sig_figs):
-        """
-        Rounds a number to the specified number of significant figures
-
-        :param number The number to round
-        :param The number of significant figures
-
-        :return The number rounded to the given number of significant figures
-        """
-        return round(number, sig_figs - int(np.math.floor(np.math.log10(abs(number)))) - 1)
-
-    @staticmethod
     def exp_moving_average(data, window):
         """
         Calculates an exponential moving average of the given time series data over the specified window
@@ -76,13 +64,12 @@ class TokenMath:
         """
         EPSILON = 1e-6
         WINDOW = 12
-        DECIMALS = 4
 
         price_data = token_history[0]
         volume_data = token_history[1]
 
-        recent_price = TokenMath.significant_figures(price_data[-1], DECIMALS) if price_data[-1] < 1 else round(price_data[-1], DECIMALS)
-        recent_volume = TokenMath.significant_figures(volume_data[-1], DECIMALS) if volume_data[-1] < 1 else round(volume_data[-1], DECIMALS)
+        recent_price = price_data[-1]
+        recent_volume = volume_data[-1]
 
         CHANGE_PERIODS = [2, 6, 12, 24, 48] # 2 hour change, 6 hour change, 12 hour change, 24 hour change, 48 hour change
         moving_price_changes = [(TokenMath.exp_moving_average(price_data, WINDOW)[period:] / (TokenMath.exp_moving_average(price_data, WINDOW)[:-period] + EPSILON))[-1] for period in CHANGE_PERIODS]
@@ -92,16 +79,17 @@ class TokenMath:
         moon_score = (TokenMath.custom_log(np.mean(volume_data[-CHANGE_PERIODS[0]:]), 1e+6) # This is the base volume it is at
                      * TokenMath.unusual_value(volume_data[-CHANGE_PERIODS[-1]:-CHANGE_PERIODS[0]], np.mean(volume_data[-CHANGE_PERIODS[0]:]))) # This is the amount larger than its previous data
 
+        exp_sum = np.sum([np.math.exp(np.sqrt(x)) for x in CHANGE_PERIODS])
+
         temp_moon_score = 1
         for moving_price_change, reversed_change_period in zip(moving_price_changes, CHANGE_PERIODS[::-1]):
-            partial_price = (moving_price_change ** np.math.sqrt(reversed_change_period)) # I want some way of normalizing this ?
-
+            partial_price = moving_price_change * np.math.exp(np.math.sqrt(reversed_change_period)) / exp_sum
             temp_moon_score *= partial_price
         
         moon_score *= TokenMath.custom_log(temp_moon_score, np.math.e)
 
         # ---------------------------- End of Moon Score calculations -----------------------------------------
 
-        price_changes = [TokenMath.significant_figures(((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100, DECIMALS) for period in CHANGE_PERIODS]
+        price_changes = [((price_data[period:] / (price_data[:-period] + EPSILON))[-1] - 1) * 100 for period in CHANGE_PERIODS]
         
         return price_changes + [recent_price, recent_volume, moon_score]

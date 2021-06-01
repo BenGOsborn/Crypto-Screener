@@ -191,7 +191,7 @@ class TokensMonitor:
 
         :return An array containing the data for each token on the specified page
         """
-        page_min, page_max, _, _ = self.get_page_request_info()
+        page_min, page_max, _, true_num_tokens = self.get_page_request_info()
 
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
@@ -204,18 +204,6 @@ class TokensMonitor:
         valid_tokens = [token_id for token_id in sorted_token_ids if self.__token_data[token_id]['init']][start_index:end_index]
 
         # Format the layout of the returned token data
-        formatted = [[start_index + i + 1, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
+        formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i, *self.__token_data[token_id]['token_info'].values(), *self.__token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
-
-if __name__ == "__main__":
-    monitor = TokensMonitor(10, 5)
-
-    monitor.run()
-
-    sleep(10)
-    
-    data = monitor.get_data(1)
-    print(data)
-
-    monitor.stop()
