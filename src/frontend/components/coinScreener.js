@@ -27,7 +27,7 @@ function parseNumber(number) {
 }
 
 export default function CoinScreener() {
-    const [pageInfo, setPageInfo] = React.useState({'pageMin': null, 'pageMax': null, 'pageSize': 0, 'numSymbols': 0})
+    const [pageInfo, setPageInfo] = React.useState({'pageMin': 1, 'pageMax': 3, 'pageSize': 0, 'numSymbols': 0}) // Try and set the pageMax to be max(pageMax, 3)
     const [page, setPage] = React.useState(1);
     const [reverse, setReversed] = React.useState(false);
     const [pageData, setPageData] = React.useState([]);
@@ -125,6 +125,8 @@ export default function CoinScreener() {
                     <a href="#" onClick={e => page < pageInfo.pageMax ? setPage(page + 1) : null}>Next</a>
                 </div>
             </div>
+
+            <br />
             
         </div>
     );
