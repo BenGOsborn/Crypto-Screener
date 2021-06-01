@@ -2,7 +2,7 @@ import CoinScreener from '../components/coinScreener';
 
 export default function Main() {
     return (
-		<main>
+		<main className="container">
 			<CoinScreener />
 		</main>
 	)

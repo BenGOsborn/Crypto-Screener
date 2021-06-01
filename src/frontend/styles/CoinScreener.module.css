@@ -1,29 +1,17 @@
-/* I dont think my CSS is working */
+/* This does not dynamically rescale and center */
 
-.textWhite {
-    color: white;
-}
-
-.textGreen {
-    color: #239855;
-}
-
-.textRed {
-    color: #fd4040;
-}
-
-.textLight {
-    color: #6b7184;
-}
+/* Table */
 
 .contentTable {
     border-collapse: collapse;
     margin: 25px 0;
     font-size: 0.9em;
     min-width: 400px;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
 }
 
-.contentTable thead tr {
+.contentTable thead tr, .contentTable tfoot tr {
     background-color: #15171b;
     color: white;
     text-align: left;
@@ -32,7 +20,7 @@
 }
 
 .contentTable th, .contentTable td {
-    padding: 12px 15px;
+    padding: 20px 15px;
 }
 
 .contentTable span {
@@ -43,4 +31,12 @@
 .contentTable tbody tr {
     background-color: #15171b;
     border-bottom: 1px solid #2b2d35;
+}
+
+/* The last border is going to contain the next npage pagination thing https://youtu.be/biI9OFH6Nmg?t=419 */
+
+/* Pagination */
+
+.pagination {
+    display: inline-block;
 }
