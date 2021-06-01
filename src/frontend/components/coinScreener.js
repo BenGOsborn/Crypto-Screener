@@ -1,21 +1,17 @@
 import React from 'react';
 import axios from 'axios';
+import '../styles/CoinScreener.module.css';
 
 function chooseColour(price) {
     if (price < 0) {
-        return "text-danger";
+        return "text-red";
 
     } else if (price > 0) {
-        return "text-success";
+        return "text-green";
 
     } else {
-        return "";
+        return "text-white";
     }
-}
-
-const tableTextStyle = {
-    textDecoration: 'none',
-    color: 'black'
 }
 
 export default function CoinScreener() {
@@ -41,7 +37,7 @@ export default function CoinScreener() {
     }, []);
 
     React.useEffect(() => {
-        axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse == "true" })
+        axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
         .then(res => {
             const form = res.data;
 
@@ -78,37 +74,28 @@ export default function CoinScreener() {
     return (
         <div className="CoinScreener">
 
-            <div className="container">
-                <div className="row">
-
-                    <select className="form-select col" onChange={e => setReversed(e.target.value)}>
-                        <option value={false}>Best performing</option>
-                        <option value={true}>Worst performing</option>
-                    </select>
-
-                    <span className="col">
-                        {pagination()}
-                    </span>
-
-                </div>
+            <div className="text-center">
+                {pagination()}
             </div>
-
-            <br />
 
             <table className="table">
                 <thead className="thead-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Token image</th>
-                        <th>Token name</th>
-                        <th>Token symbol</th>
-                        <th>Token 2hr % change</th>
-                        <th>Token 6hr % change</th>
-                        <th>Token 12hr % change</th>
-                        <th>Token 24hr % change</th>
-                        <th>Token 48hr % change</th>
-                        <th>Token price ($USD)</th>
-                        <th>24h token volume ($USD)</th>
+                    <tr className="text-white">
+                        <th scope="col">
+                            <a className="text-white" href="#" onClick={e => setReversed(!reverse)}>{reverse ? 
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-up" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
+                        </th>
+                        <th scope="col">Token image</th>
+                        <th scope="col">Token name</th>
+                        <th scope="col">Token symbol</th>
+                        <th scope="col">Token 2hr % change</th>
+                        <th scope="col">Token 6hr % change</th>
+                        <th scope="col">Token 12hr % change</th>
+                        <th scope="col">Token 24hr % change</th>
+                        <th scope="col">Token 48hr % change</th>
+                        <th scope="col">Token price ($USD)</th>
+                        <th scope="col">24h token volume ($USD)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -117,18 +104,19 @@ export default function CoinScreener() {
                             <tr>
                                 {/* Index, id, symbol, name, url, image, 2hr, 6hr, 12hr, 24hr, 48hr, recent price, moon score */}
 
-                                <th scope="row">{row[0]}</th>
+                                <th scope="row" className="text-white">{row[0]}</th>
 
                                 {/* Can I get my images to dynamically rescale */}
                                 <td><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width={50} height={50} /></a></td> 
-                                <td><a href={row[4]} target="_blank" style={tableTextStyle}>{row[3]}</a></td>
-                                <td><a href={row[4]} target="_blank" style={tableTextStyle}>{row[2].toUpperCase()}</a></td>
+                                <td><a className="text-white" href={row[4]} target="_blank">{row[3]}</a></td>
+                                <td><a className="text-white" href={row[4]} target="_blank">{row[2].toUpperCase()}</a></td>
 
                                 <td className={chooseColour(row[6])}>{row[6]}</td>
                                 <td className={chooseColour(row[7])}>{row[7]}</td>
                                 <td className={chooseColour(row[8])}>{row[8]}</td>
                                 <td className={chooseColour(row[9])}>{row[9]}</td>
-                                <td className={chooseColour(row[10])}>{row[10]}</td>
+                                {/* <td className={chooseColour(row[10])}>{row[10]}</td> */}
+                                <td style={{color: 'green'}}>{row[10]}</td>
 
                                 <td>{row[11]}</td>
                                 <td>{row[12]}</td>

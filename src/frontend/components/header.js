@@ -5,7 +5,7 @@ export default function Header() {
         <div className="Header">
 
             <div className="text-center">
-                <h1 style={{fontSize: 65}}>TOKENSPOT</h1>
+                <h1 style={{fontSize: 65, color: 'white'}}>TOKENSPOT</h1>
                 <h2>Crypto tools to save you time and maximize your gains!</h2>
                 <p className="text-danger">*NOTHING ON THIS WEBSITE SHOULD BE TAKEN AS FINANCIAL ADVICE. WE ARE NOT RESPONSIBLE FOR ANY MONEY YOU MAY LOSE.*</p>
             </div>
