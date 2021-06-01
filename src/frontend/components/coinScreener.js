@@ -106,28 +106,25 @@ export default function CoinScreener() {
                                 <td className={chooseColour(row[9])}>{parseNumber(row[9])}%</td>
                                 <td className={chooseColour(row[10])}>{parseNumber(row[10])}%</td>
 
-                                <td className="textWhite">{parseNumber(row[11])}</td>
-                                <td className="textWhite">{parseNumber(row[12])}</td>
+                                <td className="textWhite">${parseNumber(row[11])}</td>
+                                <td className="textWhite">${parseNumber(row[12])}</td>
                             </tr>
                         );
                     })}
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th>
-                            <ul className={styles.pagination}>
-                                <li><a href="#" onClick={e => page > pageInfo.pageMin ? setPage(page - 1) : null}>Previous</a></li>
-
-                                <li><a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a></li>
-                                <li><a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a></li>
-                                <li><a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a></li>
-
-                                <li><a href="#" onClick={e => page < pageInfo.pageMax ? setPage(page + 1) : null}>Next</a></li>
-                            </ul>
-                        </th>
-                    </tr>
-                </tfoot>
             </table>
+
+            <div className="container">
+                <div className={styles.pagination}>
+                    <a href="#" onClick={e => page > pageInfo.pageMin ? setPage(page - 1) : null}>Previous</a>
+
+                    <a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
+                    <a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a>
+                    <a href="#" onClick={e => setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>
+
+                    <a href="#" onClick={e => page < pageInfo.pageMax ? setPage(page + 1) : null}>Next</a>
+                </div>
+            </div>
             
         </div>
     );

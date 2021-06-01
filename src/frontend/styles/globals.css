@@ -4,12 +4,12 @@
 }
 
 body {
-    background-color: #2b2d35;
+    background-color: #0c0c0c;
 }
 
 .container {
-    margin: auto;
-    width: 80%;
+    display: flex;
+    justify-content: center;
     padding: 10px;
 }
 

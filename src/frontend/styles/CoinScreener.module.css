@@ -7,11 +7,11 @@
     margin: 25px 0;
     font-size: 0.9em;
     min-width: 400px;
-    border-radius: 10px 10px 0 0;
+    border-radius: 10px;
     overflow: hidden;
 }
 
-.contentTable thead tr, .contentTable tfoot tr {
+.contentTable thead tr {
     background-color: #15171b;
     color: white;
     text-align: left;
@@ -33,10 +33,24 @@
     border-bottom: 1px solid #2b2d35;
 }
 
-/* The last border is going to contain the next npage pagination thing https://youtu.be/biI9OFH6Nmg?t=419 */
+.contentTable tbody tr:last-of-type {
+    border-bottom: none;
+}
 
 /* Pagination */
 
 .pagination {
     display: inline-block;
+    background-color: #15171b;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.pagination a {
+    color: white;
+    padding: 20px;
+}
+
+.pagination a:hover {
+    color: #6b7184;
 }
