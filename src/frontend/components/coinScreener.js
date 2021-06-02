@@ -2,6 +2,7 @@ import React from 'react';
 import axios from 'axios';
 import styles from '../styles/CoinScreener.module.css';
 
+// Sets the colour of the text through its class if the number given is positive or negative
 function chooseColour(price) {
     if (price < 0) {
         return "textRed";
@@ -11,6 +12,7 @@ function chooseColour(price) {
     }
 }
 
+// Formats the number in a more readable fashion e.g. representing a million as 1m or a billion as 1b
 function parseNumber(number) {
     if (Math.abs(number) > 1e9) {
         return Math.round(100 * number / 1e9) / 100 + "b";
@@ -26,109 +28,136 @@ function parseNumber(number) {
     }
 }
 
+// Main coin screening component
 export default function CoinScreener() {
     const [pageInfo, setPageInfo] = React.useState({'pageMin': 1, 'pageMax': 3, 'pageSize': 0, 'numSymbols': 0}) // Try and set the pageMax to be max(pageMax, 3)
     const [page, setPage] = React.useState(1);
     const [reverse, setReversed] = React.useState(false);
     const [pageData, setPageData] = React.useState([]);
-    const [error, setError] = React.useState(false);
+    const [loaded, setLoaded] = React.useState(false);
 
+    // Call the page request limits on the page load
     React.useEffect(() => {
         axios.get('https://coin-screener-api.herokuapp.com/api/get_pages_info')
         .then(res => {
             const form = res.data;
             
-            setPageInfo(form); // Do one of these on every page load
-            setError(false);
+            setPageInfo(form);
+            setLoaded(true);
         })
         .catch(err => {
             const form = err.response;
 
-            setError(true);
+            setLoaded(false);
         });
     }, []);
 
+    // Get the data for the page specified by the user whenever the page number or order is changed and then update page request limits
     React.useEffect(() => {
+        // Get token data for specified page with reversed option
         axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
         .then(res => {
             const form = res.data;
 
             setPageData(form); 
-            setError(false);
+            setLoaded(true);
         })
         .catch(err => {
             const form = err.response;
 
             console.log(form);
 
-            setError(true);
+            setLoaded(false);
+        });
+
+        // UPdate the request limits
+        axios.get('https://coin-screener-api.herokuapp.com/api/get_pages_info')
+        .then(res => {
+            const form = res.data;
+            
+            setPageInfo(form);
+            setLoaded(true);
+        })
+        .catch(err => {
+            const form = err.response;
+
+            setLoaded(false);
         });
     }, [page, reverse]);
 
     return (
         <div className="CoinScreener">
-            <table className={styles.contentTable}>
-                <thead>
-                    <tr>
-                        <th>
-                            <a className="textWhite" href="#" onClick={e => {e.preventDefault();setReversed(!reverse)}}>{reverse ? 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
-                        </th>
-                        <th>Token name</th>
-                        <th>Token 2hr change</th>
-                        {/* <th>Token 6hr change</th> */}
-                        {/* <th>Token 12hr change</th> */}
-                        <th>Token 24hr change</th>
-                        <th>Token 48hr change</th>
-                        <th>Token price ($USD)</th>
-                        <th>24h token volume ($USD)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {pageData.map(row => {
-                        return (
-                            <tr>
-                                {/* Index, id, symbol, name, url, image, 2hr, 6hr, 12hr, 24hr, 48hr, recent price, moon score */}
+            {loaded ? // If the page has loaded display the standard layout
+            <div>
+                <table className={styles.contentTable}>
+                    <thead>
+                        <tr>
+                            <th>
+                                <a className="textWhite" href="#" onClick={e => {e.preventDefault();setReversed(!reverse)}}>{reverse ? 
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
+                            </th>
+                            <th>Token name</th>
+                            <th>Token 2hr change</th>
+                            {/* <th>Token 6hr change</th> */}
+                            {/* <th>Token 12hr change</th> */}
+                            <th>Token 24hr change</th>
+                            <th>Token 48hr change</th>
+                            <th>Token price ($USD)</th>
+                            <th>24h token volume ($USD)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pageData.map(row => {
+                            return (
+                                <tr>
+                                    {/* Row data meanings: Index, id, symbol, name, url, image, 2hr, 6hr, 12hr, 24hr, 48hr, recent price, moon score */}
 
-                                <th className="textLight">{row[0]}</th>
+                                    <th className="textLight">{row[0]}</th>
 
-                                <td className="wrapText">
-                                    <span><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width="25" height="25" /></a></span>
-                                    <span><a className="textWhite" href={row[4]} target="_blank">{row[3]}</a></span>
-                                    <span><a className="textLight" href={row[4]} target="_blank">({row[2].toUpperCase()})</a></span>
-                               </td>
+                                    <td className="wrapText">
+                                        <span><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width="25" height="25" /></a></span>
+                                        <span><a className="textWhite" href={row[4]} target="_blank">{row[3]}</a></span>
+                                        <span><a className="textLight" href={row[4]} target="_blank">({row[2].toUpperCase()})</a></span>
+                                    </td>
 
-                                <td className={chooseColour(row[6])}>{parseNumber(row[6])}%</td>
-                                {/* <td className={chooseColour(row[7])}>{parseNumber(row[7])}%</td> */}
-                                {/* <td className={chooseColour(row[8])}>{parseNumber(row[8])}%</td> */}
-                                <td className={chooseColour(row[9])}>{parseNumber(row[9])}%</td>
-                                <td className={chooseColour(row[10])}>{parseNumber(row[10])}%</td>
+                                    <td className={chooseColour(row[6])}>{parseNumber(row[6])}%</td>
+                                    {/* <td className={chooseColour(row[7])}>{parseNumber(row[7])}%</td> */}
+                                    {/* <td className={chooseColour(row[8])}>{parseNumber(row[8])}%</td> */}
+                                    <td className={chooseColour(row[9])}>{parseNumber(row[9])}%</td>
+                                    <td className={chooseColour(row[10])}>{parseNumber(row[10])}%</td>
 
-                                <td className="textWhite">${parseNumber(row[11])}</td>
-                                <td className="textWhite">${parseNumber(row[12])}</td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                                    <td className="textWhite">${parseNumber(row[11])}</td>
+                                    <td className="textWhite">${parseNumber(row[12])}</td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
 
-            <br />
+                <br />
 
-            <div className="container">
-                <div className={styles.pagination}>
-                    <a href="#" onClick={e => {e.preventDefault();page > pageInfo.pageMin ? setPage(page - 1) : null}}>Previous</a>
+                <div className="container">
+                    <div className={styles.pagination}>
+                        <a href="#" onClick={e => {e.preventDefault();page > pageInfo.pageMin ? setPage(page - 1) : null}}>Previous</a>
 
-                    <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
-                    <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a>
-                    <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>
+                        <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
+                        <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a>
+                        <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>
 
-                    <a href="#" onClick={e => {e.preventDefault();page < pageInfo.pageMax ? setPage(page + 1) : null}}>Next</a>
+                        <a href="#" onClick={e => {e.preventDefault();page < pageInfo.pageMax ? setPage(page + 1) : null}}>Next</a>
+                    </div>
+                </div>
+
+                <br />
+            </div>
+            : // If the page has not loaded displaying a loading message
+            <div>
+                <div className={styles.padContainer}>
+                    <h1>Loading</h1>
                 </div>
             </div>
-
-            <br />
-            
+            }
         </div>
     );
 }

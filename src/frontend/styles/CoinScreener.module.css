@@ -80,3 +80,56 @@
 .pagination a:hover {
     color: #6b7184;
 }
+
+/* ------------ Misc ------------ */
+
+/* Loading container */
+
+.padContainer {
+    display: flex;
+    justify-content: center;
+    padding: 125px;
+    font-size: 0.8em;
+}
+
+.padContainer h1 {
+    color: #6b7184;
+}
+
+@media (max-width: 1000px) {
+    .padContainer {
+        font-size: 0.5em;
+        padding: 100px;
+    }
+}
+
+/* Loading dots */
+
+.padContainer h1:after {
+  content: '.';
+  animation: dots 1s steps(5, end) infinite;}
+
+@keyframes dots {
+  0%, 20% {
+    color: rgba(0,0,0,0);
+    text-shadow:
+      .25em 0 0 rgba(0,0,0,0),
+      .5em 0 0 rgba(0,0,0,0);
+    }
+  40% {
+    color: #6b7184;
+    text-shadow:
+      .25em 0 0 rgba(0,0,0,0),
+      .5em 0 0 rgba(0,0,0,0);
+    }
+  60% {
+    text-shadow:
+      .25em 0 0 #6b7184,
+      .5em 0 0 rgba(0,0,0,0);
+    }
+  80%, 100% {
+    text-shadow:
+      .25em 0 0 #6b7184,
+      .5em 0 0 #6b7184;
+    }
+}
