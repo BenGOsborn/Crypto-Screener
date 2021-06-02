@@ -43,6 +43,8 @@ def get_page():
 
     data = monitor.get_page_data(page_number, reverse=reverse)
 
+    assert len(data) > 0, "No data available!"
+
     return jsonify(data), 200
 
 # Start the server in the correct mode and declare the exit cleanup
