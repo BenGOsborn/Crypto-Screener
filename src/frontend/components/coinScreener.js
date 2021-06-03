@@ -36,23 +36,38 @@ export default function CoinScreener() {
     const [pageData, setPageData] = React.useState([]);
     const [loaded, setLoaded] = React.useState(false);
 
-    // Call the page request limits on the page load
+    // Continuously get the data for the page specified by the user
+    // ------------- WHY DID THAT SWITCH MY REVERSE ARROW ?????
     React.useEffect(() => {
-        axios.get('https://coin-screener-api.herokuapp.com/api/get_pages_info')
-        .then(res => {
-            const form = res.data;
-            
-            setPageInfo(form);
-            setLoaded(true);
-        })
-        .catch(err => {
-            const form = err.response;
+        setInterval(() => {
+            // Get token data for specified page with reversed option
+            axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
+            .then(res => {
+                const form = res.data;
 
-            setLoaded(false);
-        });
+                setPageData(form); 
+                setLoaded(true);
+            })
+            .catch(err => {
+                const form = err.response;
+
+                setLoaded(false);
+            });
+
+            // Update the request limits
+            axios.get('https://coin-screener-api.herokuapp.com/api/get_pages_info')
+            .then(res => {
+                const form = res.data;
+                
+                setPageInfo(form);
+            })
+            .catch(err => {
+                const form = err.response;
+            });
+        }, 30 * 1000);
     }, []);
 
-    // Get the data for the page specified by the user whenever the page number or order is changed and then update page request limits
+    // Update the data for the specified page number and reversed whenever the page or order is changed
     React.useEffect(() => {
         // Get token data for specified page with reversed option
         axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
@@ -65,23 +80,18 @@ export default function CoinScreener() {
         .catch(err => {
             const form = err.response;
 
-            console.log(form);
-
             setLoaded(false);
         });
 
-        // UPdate the request limits
+        // Update the request limits
         axios.get('https://coin-screener-api.herokuapp.com/api/get_pages_info')
         .then(res => {
             const form = res.data;
             
             setPageInfo(form);
-            setLoaded(true);
         })
         .catch(err => {
             const form = err.response;
-
-            setLoaded(false);
         });
     }, [page, reverse]);
 
@@ -94,8 +104,8 @@ export default function CoinScreener() {
                         <tr>
                             <th>
                                 <a className="textWhite" href="#" onClick={e => {e.preventDefault();setReversed(!reverse)}}>{reverse ? 
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
                             </th>
                             <th>Token name</th>
                             <th>Token 2hr change</th>
@@ -115,8 +125,8 @@ export default function CoinScreener() {
 
                                     <th className="textLight">{row[0]}</th>
 
-                                    <td className="wrapText">
-                                        <span><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} width="25" height="25" /></a></span>
+                                    <td>
+                                        <span><a href={row[4]} target="_blank"><img src={row[5]} alt={row[2]} /></a></span>
                                         <span><a className="textWhite" href={row[4]} target="_blank">{row[3]}</a></span>
                                         <span><a className="textLight" href={row[4]} target="_blank">({row[2].toUpperCase()})</a></span>
                                     </td>
@@ -142,8 +152,8 @@ export default function CoinScreener() {
                         <a href="#" onClick={e => {e.preventDefault();page > pageInfo.pageMin ? setPage(page - 1) : null}}>Previous</a>
 
                         <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
-                        <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a>
-                        <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>
+                        {pageInfo.pageMax > 1 ? <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a> : null}
+                        {pageInfo.pageMax > 2 ? <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>: null}
 
                         <a href="#" onClick={e => {e.preventDefault();page < pageInfo.pageMax ? setPage(page + 1) : null}}>Next</a>
                     </div>
