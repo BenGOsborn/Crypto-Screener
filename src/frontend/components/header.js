@@ -9,8 +9,6 @@ export default function Header() {
                 <h4>NOTHING ON THIS WEBSITE SHOULD BE CONSIDERED FINANCIAL ADVICE. I AM NOT RESPONSIBLE FOR ANY MONEY YOU MAY LOSE.</h4>
             </div>
 
-            <br />
-
             <div className="container">
                 <div className={styles.header}>
                     <h1>CRYPTOSCREENER</h1>

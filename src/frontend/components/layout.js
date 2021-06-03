@@ -12,7 +12,6 @@ export default function Layout(props) {
             </Head>
 
             <Header />
-            <br />
             {props.children}
         </>
     );

@@ -41,6 +41,9 @@ export default function CoinScreener() {
     React.useEffect(() => {
         setInterval(() => {
             // Get token data for specified page with reversed option
+
+            // ---------------- I DO NOT WANT TO HAVE A LOADING MESSAGE IF IT FAILS TO UPDATE AFTER THE INITIAL LOAD - ONLY SHOULD DO IT ON THE INITIAL LOAD
+
             axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
             .then(res => {
                 const form = res.data;
