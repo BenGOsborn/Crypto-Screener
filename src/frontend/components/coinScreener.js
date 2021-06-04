@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer } from 'react';
 import axios from 'axios';
 import styles from '../styles/CoinScreener.module.css';
 
@@ -31,20 +31,20 @@ function parseNumber(number) {
 // Main coin screening component
 export default function CoinScreener() {
     const [pageInfo, setPageInfo] = React.useState({'pageMin': 1, 'pageMax': 3, 'pageSize': 0, 'numSymbols': 0}) // Try and set the pageMax to be max(pageMax, 3)
+
     const [page, setPage] = React.useState(1);
+    const pageRef = React.useRef(1); // Used for reading the state within the setInterval
     const [reverse, setReversed] = React.useState(false);
+    const reverseRef = React.useRef(false); // Used for reading the state within the setInterval
+
     const [pageData, setPageData] = React.useState([]);
     const [loaded, setLoaded] = React.useState(false);
 
-    // Continuously get the data for the page specified by the user
-    // ------------- WHY DID THAT SWITCH MY REVERSE ARROW ?????
+    // Continuously get the data for the page and reverse options specified by the user
     React.useEffect(() => {
         setInterval(() => {
             // Get token data for specified page with reversed option
-
-            // ---------------- I DO NOT WANT TO HAVE A LOADING MESSAGE IF IT FAILS TO UPDATE AFTER THE INITIAL LOAD - ONLY SHOULD DO IT ON THE INITIAL LOAD
-
-            axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: page, reverse: reverse })
+            axios.post('https://coin-screener-api.herokuapp.com/api/get_page_data', { pageNumber: pageRef.current, reverse: reverseRef.current })
             .then(res => {
                 const form = res.data;
 
@@ -53,8 +53,6 @@ export default function CoinScreener() {
             })
             .catch(err => {
                 const form = err.response;
-
-                setLoaded(false);
             });
 
             // Update the request limits
@@ -98,6 +96,18 @@ export default function CoinScreener() {
         });
     }, [page, reverse]);
 
+    function _setPage(e, newPage) {
+        e.preventDefault();
+        pageRef.current = newPage;
+        setPage(newPage);
+    }
+
+    function _setReverse(e, newReversed) {
+        e.preventDefault();
+        reverseRef.current = newReversed;
+        setReversed(newReversed);
+    }
+    
     return (
         <div className="CoinScreener">
             {loaded ? // If the page has loaded display the standard layout
@@ -106,7 +116,7 @@ export default function CoinScreener() {
                     <thead>
                         <tr>
                             <th>
-                                <a className="textWhite" href="#" onClick={e => {e.preventDefault();setReversed(!reverse)}}>{reverse ? 
+                                <a className="textWhite" href="#" onClick={e => _setReverse(e, !reverse)}>{reverse ? 
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-arrow-up" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"/></svg> :
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" className="bi bi-arrow-down" viewBox="0 0 16 16"><path fillRule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v11.793l3.146-3.147a.5.5 0 0 1 .708.708l-4 4a.5.5 0 0 1-.708 0l-4-4a.5.5 0 0 1 .708-.708L7.5 13.293V1.5A.5.5 0 0 1 8 1z"/></svg>}</a>
                             </th>
@@ -150,15 +160,16 @@ export default function CoinScreener() {
 
                 <br />
 
+                {/* I want some sort of disabled styling */}
                 <div className="container">
                     <div className={styles.pagination}>
-                        <a href="#" onClick={e => {e.preventDefault();page > pageInfo.pageMin ? setPage(page - 1) : null}}>Previous</a>
+                        <a href="#" onClick={e => page > pageInfo.pageMin ? _setPage(e, page - 1) : e.preventDefault()}>Previous</a>
 
-                        <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
-                        {pageInfo.pageMax > 1 ? <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a> : null}
-                        {pageInfo.pageMax > 2 ? <a href="#" onClick={e => {e.preventDefault();setPage(page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>: null}
+                        <a href="#" onClick={e => _setPage(e, page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
+                        {pageInfo.pageMax > 1 ? <a href="#" onClick={e => _setPage(e, page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a> : null}
+                        {pageInfo.pageMax > 2 ? <a href="#" onClick={e => _setPage(e, page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>: null}
 
-                        <a href="#" onClick={e => {e.preventDefault();page < pageInfo.pageMax ? setPage(page + 1) : null}}>Next</a>
+                        <a href="#" onClick={e => page < pageInfo.pageMax ? _setPage(e, page + 1) : e.preventDefault()}>Next</a>
                     </div>
                 </div>
 
