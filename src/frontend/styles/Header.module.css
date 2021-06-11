@@ -78,13 +78,13 @@
 /* Smaller screens */
 @media (max-width: 700px) {
     .disclaimer h4 {
-        font-size: 1em;
+        font-size: 0.9em;
     }
 }
 
 /* Smaller screens */
 @media (max-width: 500px) {
     .disclaimer h4 {
-        font-size: 0.8em;
+        font-size: 0.7em;
     }
 }
