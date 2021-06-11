@@ -133,6 +133,17 @@
     }
 }
 
+/* Pagination text colours */
+.active {
+    color: #1bec76 !important;
+    cursor: default !important;
+}
+
+.inactive {
+    color: #9d9d9d !important;
+    cursor: default !important;
+}
+
 /* ------------ Misc ------------ */
 
 /* Loading container */

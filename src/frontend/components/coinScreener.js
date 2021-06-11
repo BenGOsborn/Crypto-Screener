@@ -140,6 +140,10 @@ export default function CoinScreener() {
             return null;
 
         } else {
+            if (displayNumber === page) {
+                return <a className={styles.active} href="#" onClick={e => _setPage(e, displayNumber)}>{displayNumber}</a>
+            }
+
             return <a href="#" onClick={e => _setPage(e, displayNumber)}>{displayNumber}</a>
         }
     }
@@ -202,17 +206,17 @@ export default function CoinScreener() {
 
                         {/* The problem is is it is greater than min it will set the pages to 0, it shouldnt do that */}
 
-                        <a href="#" onClick={e => _setPage(e, pageInfo.pageMin)}>Start</a>
+                        <a className={page <= pageInfo.pageMin ? styles.inactive : ""} href="#" onClick={e => _setPage(e, pageInfo.pageMin)}>Start</a>
 
-                        <a href="#" onClick={e => _setPage(e, page - 1)}>Previous</a>
+                        <a className={page <= pageInfo.pageMin ? styles.inactive : ""} href="#" onClick={e => _setPage(e, page - 1)}>Previous</a>
 
                         {paginationButton(-1)}
                         {paginationButton(0)}
                         {paginationButton(1)}
 
-                        <a href="#" onClick={e => _setPage(e, page + 1)}>Next</a>
+                        <a className={page >= pageInfo.pageMax ? styles.inactive : ""} href="#" onClick={e => _setPage(e, page + 1)}>Next</a>
 
-                        <a href="#" onClick={e => _setPage(e, pageInfo.pageMax)}>End</a>
+                        <a className={page >= pageInfo.pageMax ? styles.inactive : ""} href="#" onClick={e => _setPage(e, pageInfo.pageMax)}>End</a>
 
                     </div>
                 </div>
