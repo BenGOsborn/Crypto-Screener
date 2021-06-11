@@ -3,7 +3,6 @@
 /* Normal size */
 .header {
     text-align: center;
-    width: 80%;
     padding-bottom: 20px;
 }
 
@@ -13,13 +12,13 @@
 
 .header h1 {
     color: white;
-    font-size: 3em;
+    font-size: 4em;
     font-weight: bold;
 }
 
 .header h2 {
     color: #6b7184;
-    font-size: 1em;
+    font-size: 1.2em;
     letter-spacing: 0.5px;
 }
 
@@ -27,6 +26,7 @@
     color: white;
     font-size: 1.2em;
     margin: auto;
+    width: 70%;
 }
 
 /* Smaller screens */
@@ -36,11 +36,10 @@
     }
 
     .header h2 {
-        font-size: 0.8em;
+        font-size: 1em;
     }
 
     .header h3 {
-        width: 90%;
         font-size: 0.9em;
     }
 }
@@ -48,15 +47,14 @@
 /* Smaller screens */
 @media (max-width: 500px) {
     .header h1 {
-        font-size: 1.9em;
+        font-size: 2em;
     }
 
     .header h2 {
-        font-size: 0.6em;
+        font-size: 0.7em;
     }
 
     .header h3 {
-        width: 90%;
         font-size: 0.7em;
     }
 }
@@ -66,24 +64,27 @@
 /* Normal size */
 .disclaimer {
     overflow: hidden;
-    width: 90%;
     text-align: center;
     margin: auto;
+    width: 80%;
 }
 
 .disclaimer h4 {
     color: #e43939;
-    font-size: 0.8em;
+    font-size: 1.2em;
     font-weight: bold;
 }
 
 /* Smaller screens */
-@media (max-width: 500px) {
-    .disclaimer {
-        width: 80%;
-    }
-
+@media (max-width: 700px) {
     .disclaimer h4 {
-        font-size: 0.4em;
+        font-size: 1em;
+    }
+}
+
+/* Smaller screens */
+@media (max-width: 500px) {
+    .disclaimer h4 {
+        font-size: 0.8em;
     }
 }
