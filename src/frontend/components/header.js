@@ -11,7 +11,7 @@ export default function Header() {
 
             <div className="container">
                 <div className={styles.header}>
-                    <h1>CRYPTOSCREENER</h1>
+                    <h1>CRYPTO <span className="textGreen">SCREENER</span></h1>
                     <h2>By <a href="https://github.com/BenGOsborn" target="_blank">Ben Osborn</a></h2>
                     <h3>Ranks crypto tokens based on their price changes, volume, and volume abnormality to help you find the ones that are performing the best!</h3>
                 </div>

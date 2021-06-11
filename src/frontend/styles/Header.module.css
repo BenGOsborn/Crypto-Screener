@@ -3,7 +3,7 @@
 /* Normal size */
 .header {
     text-align: center;
-    width: 90%;
+    width: 80%;
     padding-bottom: 20px;
 }
 
@@ -13,7 +13,7 @@
 
 .header h1 {
     color: white;
-    font-size: 2.5em;
+    font-size: 3em;
     font-weight: bold;
 }
 
@@ -26,23 +26,38 @@
 .header h3 {
     color: white;
     font-size: 1.2em;
-    width: 70%;
     margin: auto;
+}
+
+/* Smaller screens */
+@media (max-width: 700px) {
+    .header h1 {
+        font-size: 2.5em;
+    }
+
+    .header h2 {
+        font-size: 0.8em;
+    }
+
+    .header h3 {
+        width: 90%;
+        font-size: 0.9em;
+    }
 }
 
 /* Smaller screens */
 @media (max-width: 500px) {
     .header h1 {
-        font-size: 1.2em;
+        font-size: 1.9em;
     }
 
     .header h2 {
-        font-size: 0.4em;
+        font-size: 0.6em;
     }
 
     .header h3 {
         width: 90%;
-        font-size: 0.5em;
+        font-size: 0.7em;
     }
 }
 
@@ -65,7 +80,7 @@
 /* Smaller screens */
 @media (max-width: 500px) {
     .disclaimer {
-        width: 70%;
+        width: 80%;
     }
 
     .disclaimer h4 {

@@ -98,14 +98,50 @@ export default function CoinScreener() {
 
     function _setPage(e, newPage) {
         e.preventDefault();
+
+        if ((pageRef.current === newPage) || (newPage > pageInfo.pageMax) || (newPage < pageInfo.pageMin)) {
+            return;
+        }
+
         pageRef.current = newPage;
         setPage(newPage);
     }
 
     function _setReverse(e, newReversed) {
         e.preventDefault();
+
+        if (reverseRef.current === newReversed) {
+            return;
+        }
+
         reverseRef.current = newReversed;
         setReversed(newReversed);
+    }
+
+    function paginationButton(buttonNumber) {
+        if (buttonNumber !== -1 && buttonNumber !== 0 && buttonNumber !== 1) {
+            console.error("buttonNumber must be '-1', '0', or '1'");
+            return null;
+        }
+
+        let displayNumber = -1;
+
+        if (page <= pageInfo.pageMin) {
+            displayNumber = page + 1 + buttonNumber;
+
+        } else if ((page >= pageInfo.pageMax) && (pageInfo.pageMax > 2)) {
+            displayNumber = page - 1 + buttonNumber;
+
+        } else {
+            displayNumber = page + buttonNumber;
+        }
+
+        if ((buttonNumber === 0 && pageInfo.pageMax < 2) || (buttonNumber === 1 && pageInfo.pageMax < 3)) {
+            return null;
+
+        } else {
+            return <a href="#" onClick={e => _setPage(e, displayNumber)}>{displayNumber}</a>
+        }
     }
     
     return (
@@ -163,13 +199,21 @@ export default function CoinScreener() {
                 {/* I want some sort of disabled styling */}
                 <div className="container">
                     <div className={styles.pagination}>
-                        <a href="#" onClick={e => page > pageInfo.pageMin ? _setPage(e, page - 1) : e.preventDefault()}>Previous</a>
 
-                        <a href="#" onClick={e => _setPage(e, page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1)}>{page === pageInfo.pageMin ? page : page === pageInfo.pageMax ? page - 2 : page - 1}</a>
-                        {pageInfo.pageMax > 1 ? <a href="#" onClick={e => _setPage(e, page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page)}>{page === pageInfo.pageMin ? page + 1 : page === pageInfo.pageMax ? page - 1 : page}</a> : null}
-                        {pageInfo.pageMax > 2 ? <a href="#" onClick={e => _setPage(e, page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1)}>{page === pageInfo.pageMin ? page + 2 : page === pageInfo.pageMax ? page : page + 1}</a>: null}
+                        {/* The problem is is it is greater than min it will set the pages to 0, it shouldnt do that */}
 
-                        <a href="#" onClick={e => page < pageInfo.pageMax ? _setPage(e, page + 1) : e.preventDefault()}>Next</a>
+                        <a href="#" onClick={e => _setPage(e, pageInfo.pageMin)}>Start</a>
+
+                        <a href="#" onClick={e => _setPage(e, page - 1)}>Previous</a>
+
+                        {paginationButton(-1)}
+                        {paginationButton(0)}
+                        {paginationButton(1)}
+
+                        <a href="#" onClick={e => _setPage(e, page + 1)}>Next</a>
+
+                        <a href="#" onClick={e => _setPage(e, pageInfo.pageMax)}>End</a>
+
                     </div>
                 </div>
 
