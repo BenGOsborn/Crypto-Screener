@@ -87,7 +87,7 @@ class TokensMonitor:
         print(f"{header}Starting")
 
         while True:
-            sleep(10)
+            sleep(5)
 
             try:
                 with open(file_path, 'w') as f:
@@ -127,7 +127,7 @@ class TokensMonitor:
         """
 
         # Log the starting of a new monitor
-        print("Initializing instance of monitor")
+        print("Initializing new instance of monitor")
 
         # If there is no file, it means an updater thread doesnt exist and we need to create one, otherwise just read from the file
         if not os.path.exists(self.__file_path):
@@ -181,7 +181,7 @@ class TokensMonitor:
 
         :return An array containing the data for each token on the specified page
         """
-        
+
         page_min, page_max, _, true_num_tokens = self.get_page_request_info()
 
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
@@ -198,6 +198,7 @@ class TokensMonitor:
         valid_tokens = [token_id for token_id in sorted_token_ids if token_data[token_id]['init']][start_index:end_index]
 
         # Format the layout of the returned token data
-        formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i, *token_data[token_id]['token_info'].values(), *token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
+        formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i, 
+                        *token_data[token_id]['token_info'].values(), *token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
