@@ -106,10 +106,6 @@ class TokensMonitor:
         with open(self.__file_path, 'r') as f:
             data = json.load(f)
 
-        print("----------DEV TOKEN DATA-------------")
-        print(data)
-        print("----------DEV TOKEN DATA-------------")
-
         return data
 
     def stop(self):
