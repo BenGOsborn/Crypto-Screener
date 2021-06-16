@@ -106,6 +106,10 @@ class TokensMonitor:
         with open(self.__file_path, 'r') as f:
             data = json.load(f)
 
+        print("----------DEV TOKEN DATA-------------")
+        print(data)
+        print("----------DEV TOKEN DATA-------------")
+
         return data
 
     def stop(self):
@@ -121,7 +125,7 @@ class TokensMonitor:
 
             os.remove(self.__file_path)
 
-    def run(self):
+    def monitor(self):
         """
         Spawns the process which updates the token data
         """
@@ -131,7 +135,7 @@ class TokensMonitor:
 
         # If there is no file, it means an updater thread doesnt exist and we need to create one, otherwise just read from the file
         if not os.path.exists(self.__file_path):
-            with open(self.__file_path, 'w') as f: # Create a new empty file to prevent the other from being made
+            with open(self.__file_path, 'w') as f: # Create a new empty file to prevent another monitor instance from being spun up
                 pass
 
             # Create a new daemon thread to run the updater
@@ -182,8 +186,10 @@ class TokensMonitor:
         :return An array containing the data for each token on the specified page
         """
 
+        # Get the page request info for accepted page numbers and number of tokens
         page_min, page_max, _, true_num_tokens = self.get_page_request_info()
 
+        # Check that the page number is valid
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
         # Create an instance of the token data

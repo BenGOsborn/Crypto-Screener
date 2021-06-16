@@ -18,7 +18,7 @@ else:
 
 # Initialize the token monitor
 monitor = TokensMonitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
-monitor.run()
+monitor.monitor()
 
 # Create the flask app and enable CORS
 app = Flask(__name__)
