@@ -19,6 +19,8 @@ class TokensMonitor:
         self.__page_size = page_size
         self.__file_path = file_path
 
+        self.__file_lock = [False] # Prevents the file from being read from when it is being written to
+
         self.__token_data = {} # Stores the data for the tokens to be shared between the updater and the file writer
 
     @staticmethod
@@ -74,7 +76,7 @@ class TokensMonitor:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
 
     @staticmethod
-    def __write_token_data(data_object, file_path):
+    def __write_token_data(data_object, file_path, file_lock):
         """
         Writes the token data to a shared file
 
@@ -90,9 +92,13 @@ class TokensMonitor:
             sleep(5)
 
             try:
+                file_lock[0] = True # Lock the file from being used
+
                 with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(data_object, f)
-                
+
+                file_lock[0] = False # Unlock the file
+
                 print(f"{header}Updated shared data")
             
             except Exception as e:
@@ -102,6 +108,10 @@ class TokensMonitor:
         """
         Reads the token data from the shared file and return it
         """
+
+        # Prevent the file from being read from while the data is being modified
+        while self.__file_lock[0]:
+            sleep(0.5)
 
         with open(self.__file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
