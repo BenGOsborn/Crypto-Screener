@@ -90,7 +90,7 @@ class TokensMonitor:
             sleep(5)
 
             try:
-                with open(file_path, 'w') as f:
+                with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(data_object, f)
                 
                 print(f"{header}Updated shared data")
@@ -103,7 +103,7 @@ class TokensMonitor:
         Reads the token data from the shared file and return it
         """
 
-        with open(self.__file_path, 'r') as f:
+        with open(self.__file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         return data
