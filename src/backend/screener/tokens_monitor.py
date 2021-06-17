@@ -1,7 +1,6 @@
 import os
 import threading
 from time import sleep
-import json
 from screener.api import API
 from screener.token_math import TokenMath
 from screener.file_lock import FileLock
@@ -89,19 +88,6 @@ class TokensMonitor:
 
         # Read the data from the file and return it
         return self.__file.read()
-
-    def stop(self):
-        """
-        Cleans up the program on exit
-        """
-
-        # Delete the shared data file to let future instances of the program know there are no monitor threads
-        print("Stopping...")
-
-        if os.path.exists(self.__file_path):
-            print("Cleaning up files")
-
-            os.remove(self.__file_path)
 
     def monitor(self):
         """

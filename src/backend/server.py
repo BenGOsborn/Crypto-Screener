@@ -1,7 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
 import os
-import atexit
 from screener.tokens_monitor import TokensMonitor
 
 # Heroku environment contains "DYNO" - if there is a "DYNO" it must be heroku, if not must be dev
@@ -49,5 +48,4 @@ def get_page():
 
 # Start the server in the correct mode and declare the exit cleanup
 if __name__ == "__main__":
-    atexit.register(monitor.stop)
     app.run(debug=DEV)

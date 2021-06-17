@@ -3,7 +3,7 @@ import os
 
 class FileLock:
     """
-    Handles file operations and locks file from being read when it is being written to
+    Handles file and verifies the file operations are executed
 
     :param file_path The path to the file to be handled
     """
@@ -75,3 +75,8 @@ class FileLock:
             return data
         
         return self.__verify(func)
+
+    def __del__(self):
+        if os.path.exists(self.__file_path):
+            os.remove(self.__file_path)
+            print(f"Deleted {self.__file_path}")
