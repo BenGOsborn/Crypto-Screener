@@ -65,7 +65,7 @@ export default function CoinScreener() {
             .catch(err => {
                 const form = err.response;
             });
-        }, 30 * 1000);
+        }, 15 * 1000);
     }, []);
 
     // Update the data for the specified page number and reversed whenever the page or order is changed
@@ -226,7 +226,7 @@ export default function CoinScreener() {
             : // If the page has not loaded displaying a loading message
             <div>
                 <div className={styles.padContainer}>
-                    <h1>Loading</h1>
+                    <h1>Loading, this may take a minute</h1>
                 </div>
             </div>
             }

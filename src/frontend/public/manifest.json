@@ -1,0 +1,15 @@
+{
+  "name": "CryptoScreener",
+  "short_name": "CS",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1bec76",
+  "background_color": "#1bec76",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
