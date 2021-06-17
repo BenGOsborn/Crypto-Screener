@@ -4,6 +4,7 @@ from time import sleep
 import json
 from screener.api import API
 from screener.token_math import TokenMath
+from screener.file_lock import FileLock
 
 class TokensMonitor:
     """
@@ -17,7 +18,7 @@ class TokensMonitor:
     def __init__(self, num_tokens, page_size, file_path="tmp.json"):
         self.__num_tokens = num_tokens
         self.__page_size = page_size
-        self.__file_path = file_path
+        self.__file = FileLock(file_path) # Will block operations from being performed until the other one has been completed
 
         self.__file_lock = [False] # Prevents the file from being read from when it is being written to
 
