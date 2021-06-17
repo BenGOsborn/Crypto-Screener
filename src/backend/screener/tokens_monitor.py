@@ -18,6 +18,16 @@ class TokensMonitor:
     def __init__(self, num_tokens, page_size, file_path="tmp.json"):
         self.__num_tokens = num_tokens
         self.__page_size = page_size
+
+        self.__monitor = False # If this is the instance which will be doing the main monitoring
+
+        # If there is no file, it means an updater thread doesnt exist and we need to create one, otherwise just read from the file
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f: # Create a new empty file to prevent another monitor instance from being spun up
+                pass
+
+            self.__monitor = True # Set this as the monitor thread
+
         self.__file = FileLock(file_path) # Will block operations from being performed until the other one has been completed
 
         self.__token_data = {} # Stores the data for the tokens to be shared between the updater and the file writer
@@ -110,12 +120,8 @@ class TokensMonitor:
         # Log the starting of a new monitor
         print("Initializing new instance of monitor")
 
-        # If there is no file, it means an updater thread doesnt exist and we need to create one, otherwise just read from the file
-        if not os.path.exists(self.__file_path):
-            with open(self.__file_path, 'w') as f: # Create a new empty file to prevent another monitor instance from being spun up
-                pass
-
-            # Create a new daemon thread to run the updater
+        # Create a new daemon thread to run the updater if this is the monitor thread
+        if self.__monitor:
             monitor_thread = threading.Thread(target=TokensMonitor.__update_token_data, args=(self.__token_data, self.__num_tokens, self.__file))
             monitor_thread.setDaemon(True)
             monitor_thread.start()
