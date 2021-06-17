@@ -20,8 +20,6 @@ class TokensMonitor:
         self.__page_size = page_size
         self.__file = FileLock(file_path) # Will block operations from being performed until the other one has been completed
 
-        self.__file_lock = [False] # Prevents the file from being read from when it is being written to
-
         self.__token_data = {} # Stores the data for the tokens to be shared between the updater and the file writer
 
     @staticmethod
@@ -77,7 +75,7 @@ class TokensMonitor:
                     print(f"{header}Encountered exception '{e}' for {token_id}")
 
     @staticmethod
-    def __write_token_data(data_object, file_path, file_lock):
+    def __write_token_data(data_object, file_lock):
         """
         Writes the token data to a shared file
 
@@ -93,12 +91,7 @@ class TokensMonitor:
             sleep(5)
 
             try:
-                file_lock[0] = True # Lock the file from being used
-
-                with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(data_object, f)
-
-                file_lock[0] = False # Unlock the file
+                file_lock.write(data_object)
 
                 print(f"{header}Updated shared data")
             
@@ -110,12 +103,7 @@ class TokensMonitor:
         Reads the token data from the shared file and return it
         """
 
-        # Prevent the file from being read from while the data is being modified
-        while self.__file_lock[0]:
-            sleep(0.5)
-
-        with open(self.__file_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        data = self.__file.read()
 
         return data
 
@@ -155,7 +143,7 @@ class TokensMonitor:
             # Create a new daemon thread to run the writer
             print("Initializing write thread...")
             
-            write_thread = threading.Thread(target=TokensMonitor.__write_token_data, args=(self.__token_data, self.__file_path))
+            write_thread = threading.Thread(target=TokensMonitor.__write_token_data, args=(self.__token_data, self.__file))
             write_thread.setDaemon(True)
             write_thread.start()
 

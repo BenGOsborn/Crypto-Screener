@@ -61,8 +61,3 @@ class FileLock:
             return data
         
         return self.__wait(func)
-
-if __name__ == "__main__":
-    file = FileLock("tmp.json")
-
-    print(file.read()) 
