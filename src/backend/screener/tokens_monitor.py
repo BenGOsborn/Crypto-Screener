@@ -23,7 +23,7 @@ class TokensMonitor:
         self.__token_data = {} # Stores the data for the tokens to be shared between the updater and the file writer
 
     @staticmethod
-    def __update_token_data(token_data, num_tokens):
+    def __update_token_data(token_data, num_tokens, file_lock):
         """
         Monitors and updates the token data
 
@@ -33,6 +33,7 @@ class TokensMonitor:
 
         # Initialize a new instance of the API
         api = API()
+
         header = f"Thread update: "
 
         print(f"{header}Starting")
@@ -56,7 +57,7 @@ class TokensMonitor:
                     token_data[token_id] = {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
 
             # Iterate over each token and update its data
-            for token_id in valid_token_ids:
+            for i, token_id in enumerate(valid_token_ids):
                 sleep(0.7)
 
                 try:
@@ -70,42 +71,23 @@ class TokensMonitor:
                         token_data[token_id]['init'] = True
                     
                     print(f"{header}Updated data for token {token_id}")
+
+                    # Update the file every 5 tokens
+                    if i % 5 == 0:
+                        file_lock.write(token_data)
+                        print(f"{header}Updated shared data")
                 
                 except Exception as e:
+                    # Log the error message
                     print(f"{header}Encountered exception '{e}' for {token_id}")
-
-    @staticmethod
-    def __write_token_data(data_object, file_lock):
-        """
-        Writes the token data to a shared file
-
-        :param data_object The data object to be written to the file
-        :param file_path A string representing the path to the shared data file
-        """
-        
-        header = f"Thread write: "
-
-        print(f"{header}Starting")
-
-        while True:
-            sleep(5)
-
-            try:
-                file_lock.write(data_object)
-
-                print(f"{header}Updated shared data")
-            
-            except Exception as e:
-                print(f"{header}Encountered exception '{e}'")
 
     def __get_token_data(self):
         """
         Reads the token data from the shared file and return it
         """
 
-        data = self.__file.read()
-
-        return data
+        # Read the data from the file and return it
+        return self.__file.read()
 
     def stop(self):
         """
@@ -134,18 +116,9 @@ class TokensMonitor:
                 pass
 
             # Create a new daemon thread to run the updater
-            print("Initializing monitor thread...")
-
-            monitor_thread = threading.Thread(target=TokensMonitor.__update_token_data, args=(self.__token_data, self.__num_tokens))
+            monitor_thread = threading.Thread(target=TokensMonitor.__update_token_data, args=(self.__token_data, self.__num_tokens, self.__file))
             monitor_thread.setDaemon(True)
             monitor_thread.start()
-
-            # Create a new daemon thread to run the writer
-            print("Initializing write thread...")
-            
-            write_thread = threading.Thread(target=TokensMonitor.__write_token_data, args=(self.__token_data, self.__file))
-            write_thread.setDaemon(True)
-            write_thread.start()
 
     def get_page_request_info(self):
         """
