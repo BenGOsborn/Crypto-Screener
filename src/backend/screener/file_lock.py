@@ -42,6 +42,7 @@ class FileLock:
                 break
 
             except:
+                print("Had to repeat!")
                 pass
 
         return result

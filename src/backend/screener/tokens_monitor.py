@@ -103,6 +103,9 @@ class TokensMonitor:
             monitor_thread.setDaemon(True)
             monitor_thread.start()
 
+    def __del__(self):
+        del self.__file
+
     def get_page_request_info(self):
         """
         Get the data regarding the limits of the current data
