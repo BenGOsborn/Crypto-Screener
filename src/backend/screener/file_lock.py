@@ -26,7 +26,15 @@ class FileLock:
 
         self.__file_lock[0] = True
 
-        result = func(*args, **kwargs)
+        # result = func(*args, **kwargs) # This is the alternative
+        # Keep doing the operation until it works
+        while True:
+            try:
+                result = func(*args, **kwargs)
+                break
+
+            except:
+                pass
 
         self.__file_lock[0] = False
 
