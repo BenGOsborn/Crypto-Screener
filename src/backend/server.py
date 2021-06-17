@@ -49,5 +49,5 @@ def get_page():
 
 # Start the server in the correct mode and declare the exit cleanup
 if __name__ == "__main__":
-    atexit.register(lambda: monitor.__del__())
+    atexit.register(lambda: monitor.at_exit())
     app.run(debug=DEV)

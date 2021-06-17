@@ -103,7 +103,7 @@ class TokensMonitor:
             monitor_thread.setDaemon(True)
             monitor_thread.start()
 
-    def __del__(self):
+    def at_exit(self):
         del self.__file
 
     def get_page_request_info(self):
