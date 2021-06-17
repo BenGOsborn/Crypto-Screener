@@ -1,4 +1,5 @@
 import json
+import os
 
 class FileLock:
     """
@@ -9,24 +10,31 @@ class FileLock:
 
     def __init__(self, file_path):
         self.__file_path = file_path
-        self.__file_lock = [False] # Prevents read operation when write operation is happening
 
-    def __wait(self, func, *args, **kwargs):
+        self.__monitor = False
+
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f: # Create a new empty file to prevent another monitor instance from being spun up
+                self.__monitor = True # Set the monitor file to be true
+
+    def is_monitor(self):
         """
-        Acts as a wrapper function for the read and write which locks the file whenever an operation is being performed then unlocks the file and returns the result
+        Determine if this file is the main monitor file
 
-        :param func THe function that should lock the file when called
+        :return The status of whether this is the main monitor file
+        """
+
+        return self.__monitor
+
+    def __verify(self, func, *args, **kwargs):
+        """
+        Acts as a wrapper function for the read and write operation which makes sure it works before continuing
+
+        :param func THe function that should be repeted until correct
 
         :return The result of the executed function
         """
 
-        # Wait for the file to be unlocked
-        while self.__file_lock[0]:
-            pass
-
-        self.__file_lock[0] = True
-
-        # result = func(*args, **kwargs) # This is the alternative
         # Keep doing the operation until it works
         while True:
             try:
@@ -35,8 +43,6 @@ class FileLock:
 
             except:
                 pass
-
-        self.__file_lock[0] = False
 
         return result
 
@@ -52,7 +58,7 @@ class FileLock:
             with open(self.__file_path, 'w', encoding='utf-8') as f:
                 json.dump(data_object, f)
 
-        return self.__wait(func)
+        return self.__verify(func)
 
     def read(self):
         """
@@ -68,4 +74,4 @@ class FileLock:
 
             return data
         
-        return self.__wait(func)
+        return self.__verify(func)
