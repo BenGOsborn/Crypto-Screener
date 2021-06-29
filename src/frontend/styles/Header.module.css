@@ -1,9 +1,13 @@
 /* Regular header */
 
+.headerWrapper {
+    margin: 0 auto;
+    width: 80%;
+}
+
 /* Normal size */
 .header {
     text-align: center;
-    padding-bottom: 20px;
 }
 
 .header a {
@@ -14,23 +18,24 @@
     color: white;
     font-size: 4em;
     font-weight: bold;
+    margin: 20px 0;
 }
 
 .header h2 {
     color: #6b7184;
     font-size: 1.2em;
     letter-spacing: 0.5px;
+    margin: 20px 0;
 }
 
 .header h3 {
     color: white;
     font-size: 1.2em;
     margin: auto;
-    width: 70%;
 }
 
 /* Smaller screens */
-@media (max-width: 700px) {
+@media (max-width: 600px) {
     .header h1 {
         font-size: 2.5em;
     }
@@ -45,7 +50,7 @@
 }
 
 /* Smaller screens */
-@media (max-width: 500px) {
+@media (max-width: 320px) {
     .header h1 {
         font-size: 2em;
     }
@@ -66,7 +71,6 @@
     overflow: hidden;
     text-align: center;
     margin: auto;
-    width: 80%;
 }
 
 .disclaimer h4 {
@@ -76,14 +80,14 @@
 }
 
 /* Smaller screens */
-@media (max-width: 700px) {
+@media (max-width: 600px) {
     .disclaimer h4 {
         font-size: 0.9em;
     }
 }
 
 /* Smaller screens */
-@media (max-width: 500px) {
+@media (max-width: 320px) {
     .disclaimer h4 {
         font-size: 0.7em;
     }

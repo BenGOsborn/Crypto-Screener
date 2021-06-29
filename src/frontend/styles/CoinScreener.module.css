@@ -1,5 +1,11 @@
 /* Table */
 
+/* Table wrapper */
+.tableWrapper {
+    overflow: hidden;
+    overflow-x: scroll;
+}
+
 /* Normal size */
 .contentTable {
     border-collapse: collapse;
@@ -16,9 +22,9 @@
     border-bottom: 1px solid #2b2d35;
 }
 
-.contentTable th, .contentTable td {
+.contentTable th,
+.contentTable td {
     padding: 20px 15px;
-    width: 5%;
 }
 
 .contentTable span {
@@ -28,13 +34,11 @@
 
 .contentTable img {
     width: 10%;
-    height: auto;
 }
 
 .contentTable svg {
     width: 25px;
 }
-
 .contentTable tbody tr {
     background-color: #15171b;
     border-bottom: 1px solid #2b2d35;
@@ -45,12 +49,13 @@
 }
 
 /* Smaller screens */
-@media (max-width: 700px) {
+@media (max-width: 600px) {
     .contentTable {
-        font-size: 0.7em;
+        font-size: 0.8em;
     }
 
-    .contentTable th, .contentTable td {
+    .contentTable th,
+    .contentTable td {
         padding: 15px 10px;
     }
 
@@ -64,12 +69,13 @@
 }
 
 /* Smaller screens */
-@media (max-width: 500px) {
+@media (max-width: 320px) {
     .contentTable {
-        font-size: 0.4em;
+        font-size: 0.6em;
     }
 
-    .contentTable th, .contentTable td {
+    .contentTable th,
+    .contentTable td {
         padding: 10px 5px;
     }
 
@@ -85,17 +91,19 @@
 /* Pagination */
 
 .pagination {
-    display: inline-block;
-    text-align: center;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
     background-color: #15171b;
-    padding: 20px;
     border-radius: 10px;
-    width: 450px;
 }
 
 .pagination a {
     color: white;
-    padding: 16px;
+    padding: 20px;
     font-size: 1em;
 }
 
@@ -103,26 +111,24 @@
     color: #6b7184;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 600px) {
     .pagination {
-        padding: 12px;
-        width: 325px;
+        padding: 0 15px;
     }
 
     .pagination a {
-        padding: 10px;
+        padding: 15px;
         font-size: 0.8em;
     }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 320px) {
     .pagination {
-        padding: 10px;
-        width: 200px;
+        padding: 0 10px;
     }
 
     .pagination a {
-        padding: 6px;
+        padding: 10px;
         font-size: 0.6em;
     }
 }
@@ -145,6 +151,8 @@
 .padContainer {
     display: flex;
     justify-content: center;
+    align-items: center;
+    text-align: center;
     padding: 125px;
     font-size: 0.8em;
 }
@@ -153,7 +161,7 @@
     color: #6b7184;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 600px) {
     .padContainer {
         font-size: 0.5em;
         padding: 100px;
@@ -163,30 +171,25 @@
 /* Loading dots */
 
 .padContainer h1:after {
-  content: '.';
-  animation: dots 1s steps(5, end) infinite;}
+    content: ".";
+    animation: dots 1s steps(5, end) infinite;
+}
 
 @keyframes dots {
-  0%, 20% {
-    color: rgba(0,0,0,0);
-    text-shadow:
-      .25em 0 0 rgba(0,0,0,0),
-      .5em 0 0 rgba(0,0,0,0);
+    0%,
+    20% {
+        color: rgba(0, 0, 0, 0);
+        text-shadow: 0.25em 0 0 rgba(0, 0, 0, 0), 0.5em 0 0 rgba(0, 0, 0, 0);
     }
-  40% {
-    color: #6b7184;
-    text-shadow:
-      .25em 0 0 rgba(0,0,0,0),
-      .5em 0 0 rgba(0,0,0,0);
+    40% {
+        color: #6b7184;
+        text-shadow: 0.25em 0 0 rgba(0, 0, 0, 0), 0.5em 0 0 rgba(0, 0, 0, 0);
     }
-  60% {
-    text-shadow:
-      .25em 0 0 #6b7184,
-      .5em 0 0 rgba(0,0,0,0);
+    60% {
+        text-shadow: 0.25em 0 0 #6b7184, 0.5em 0 0 rgba(0, 0, 0, 0);
     }
-  80%, 100% {
-    text-shadow:
-      .25em 0 0 #6b7184,
-      .5em 0 0 #6b7184;
+    80%,
+    100% {
+        text-shadow: 0.25em 0 0 #6b7184, 0.5em 0 0 #6b7184;
     }
 }
