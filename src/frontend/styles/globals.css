@@ -1,13 +1,13 @@
 * {
     text-decoration: none;
+}
+
+html, body {
     font-family: "Inter var", sans-serif;
+    background-color: #0c0c0c;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-body {
-    background-color: #0c0c0c;
 }
 
 .container {
