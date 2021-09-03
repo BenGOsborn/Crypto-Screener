@@ -3,7 +3,8 @@ import threading
 from time import sleep
 from screener.api import API
 from screener.token_math import TokenMath
-from screener.file_lock import FileLock
+import redis
+
 
 class TokensMonitor:
     """
@@ -14,13 +15,17 @@ class TokensMonitor:
     :param file_path A string that represents the file path of the temporary data sharing file
     """
 
-    def __init__(self, num_tokens, page_size, file_path="tmp.json"):
+    def __init__(self, num_tokens, page_size):
+        # Metadata for the page requests
         self.__num_tokens = num_tokens
         self.__page_size = page_size
 
-        self.__file = FileLock(file_path) # This is responsible for handling the file and determining if this file is the main file
+        # Connect to redis
+        self.__redis = redis.Redis(
+            host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"))
 
-        self.__token_data = {} # Stores the data for the tokens to be shared between the updater and the file writer
+        # Stores the data for the tokens to be shared between the updater and the file writer
+        self.__token_data = {}
 
     @staticmethod
     def __update_token_data(token_data, num_tokens, file_lock):
@@ -54,7 +59,8 @@ class TokensMonitor:
             for info in token_info:
                 token_id = info['id']
                 if token_id not in token_data.keys():
-                    token_data[token_id] = {'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
+                    token_data[token_id] = {
+                        'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
 
             # Iterate over each token and update its data
             for i, token_id in enumerate(valid_token_ids):
@@ -63,31 +69,24 @@ class TokensMonitor:
                 try:
                     # Get the raw token history, parse its data then update the global data for that token
                     token_history_raw = api.get_token_history(token_id)
-                    token_history_parsed = TokenMath.parse_token_data(token_history_raw)
+                    token_history_parsed = TokenMath.parse_token_data(
+                        token_history_raw)
                     token_data[token_id]['token_data'] = token_history_parsed
 
                     # Init a token if it has not been init before
                     if not token_data[token_id]['init']:
                         token_data[token_id]['init'] = True
-                    
+
                     print(f"{header}Updated data for token {token_id}")
 
                     # Update the file every 5 tokens
                     if i % 5 == 0:
                         file_lock.write(token_data)
                         print(f"{header}Updated shared data")
-                
+
                 except Exception as e:
                     # Log the error message
                     print(f"{header}Encountered exception '{e}' for {token_id}")
-
-    def __get_token_data(self):
-        """
-        Reads the token data from the shared file and return it
-        """
-
-        # Read the data from the file and return it
-        return self.__file.read()
 
     def monitor(self):
         """
@@ -99,12 +98,10 @@ class TokensMonitor:
 
         # Create a new daemon thread to run the updater if this is the monitor thread
         if self.__file.is_monitor():
-            monitor_thread = threading.Thread(target=TokensMonitor.__update_token_data, args=(self.__token_data, self.__num_tokens, self.__file))
+            monitor_thread = threading.Thread(target=TokensMonitor.__update_token_data, args=(
+                self.__token_data, self.__num_tokens, self.__file))
             monitor_thread.setDaemon(True)
             monitor_thread.start()
-
-    def at_exit(self):
-        del self.__file
 
     def get_page_request_info(self):
         """
@@ -112,7 +109,7 @@ class TokensMonitor:
 
         :return A tuple that contains numbers that represent the minimum page that can be requested, the maximum page that can be requested, the number of tokens per page, and the current number of tokens with data
         """
-        
+
         # Set the minimum number of pages that can be returned (should always be one page)
         page_min = 1
 
@@ -154,11 +151,13 @@ class TokensMonitor:
         end_index = page_number * self.__page_size
 
         # Sort the tokens by their moon score ranking in descending order and remove the invalid tokens
-        sorted_token_ids = sorted(token_data, key=lambda x: token_data[x]['token_data'][7], reverse=(not reverse))
-        valid_tokens = [token_id for token_id in sorted_token_ids if token_data[token_id]['init']][start_index:end_index]
+        sorted_token_ids = sorted(
+            token_data, key=lambda x: token_data[x]['token_data'][7], reverse=(not reverse))
+        valid_tokens = [
+            token_id for token_id in sorted_token_ids if token_data[token_id]['init']][start_index:end_index]
 
         # Format the layout of the returned token data
-        formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i, 
-                        *token_data[token_id]['token_info'].values(), *token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
+        formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i,
+                      *token_data[token_id]['token_info'].values(), *token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
 
         return formatted
