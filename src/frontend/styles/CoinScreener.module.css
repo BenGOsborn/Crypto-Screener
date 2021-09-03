@@ -92,20 +92,18 @@
 /* Pagination */
 
 .pagination {
-    width: 500px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: #15171b;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    text-align: center;
     border-radius: 10px;
+    margin: 40px auto;
 }
 
 .pagination a {
     color: white;
     padding: 20px;
-    width: 80%;
-    margin: 0 auto;
     font-size: 1em;
 }
 
@@ -116,26 +114,23 @@
 @media (max-width: 600px) {
     .pagination {
         flex-direction: column;
-        width: 40%;
         background-color: unset;
-        border-radius: unset;
+        padding: none;
+        margin: 20px auto;
     }
 
     .pagination a {
+        width: 40%;
+        min-width: 80px;
         background-color: #15171b;
-        border-radius: 10px;
+        border-radius: 5px;
         padding: 15px;
         font-size: 0.8em;
-        text-align: center;
         margin: 5px auto;
     }
 }
 
 @media (max-width: 320px) {
-    .pagination {
-        padding: 0 10px;
-    }
-
     .pagination a {
         padding: 10px;
         font-size: 0.6em;

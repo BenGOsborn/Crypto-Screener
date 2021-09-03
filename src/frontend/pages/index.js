@@ -302,8 +302,6 @@ export default function CoinScreener() {
                         </table>
                     </div>
 
-                    <br />
-
                     {/* I want some sort of disabled styling */}
                     <div className="container">
                         <div className={styles.pagination}>
