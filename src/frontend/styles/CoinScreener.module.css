@@ -3,7 +3,7 @@
 /* Table wrapper */
 .tableWrapper {
     margin: 0 auto;
-    width: 100%;
+    width: 95%;
     overflow-x: auto;
 }
 
@@ -92,6 +92,8 @@
 /* Pagination */
 
 .pagination {
+    width: 60%;
+    min-width: 480px;
     background-color: #15171b;
     display: flex;
     align-items: center;
@@ -113,6 +115,8 @@
 
 @media (max-width: 600px) {
     .pagination {
+        width: 100%;
+        min-width: unset;
         flex-direction: column;
         background-color: unset;
         padding: none;
