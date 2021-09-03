@@ -2,8 +2,8 @@
 
 /* Table wrapper */
 .tableWrapper {
-    margin: 0 auto;
     width: 95%;
+    margin: 0 auto;
     overflow-x: auto;
 }
 

@@ -51,6 +51,10 @@
 
 /* Smaller screens */
 @media (max-width: 320px) {
+    .header {
+        word-break: break-all;
+    }
+
     .header h1 {
         font-size: 2em;
     }
