@@ -2,7 +2,8 @@
     text-decoration: none;
 }
 
-html, body {
+html,
+body {
     font-family: "Inter var", sans-serif;
     background-color: #0c0c0c;
     box-sizing: border-box;
@@ -11,11 +12,8 @@ html, body {
 }
 
 .container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
     width: 95%;
-    margin: 40px auto;
+    margin: 0 auto 80px auto;
 }
 
 .textWhite {
