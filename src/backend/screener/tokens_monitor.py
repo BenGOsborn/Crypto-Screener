@@ -27,6 +27,11 @@ class TokensMonitor:
         self.__redis = redis.Redis(
             host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"), db=0)
 
+        print("REDIS DETAILS FROM ENV")
+        print(os.getenv("REDIS_HOST"), os.getenv(
+            "REDIS_PORT"), os.getenv("REDIS_PASSWORD"), 0)
+        print("Hello world: " + self.__redis.exists("hello"))
+
     @staticmethod
     def __update_token_data(num_tokens: int, prefix: str, redis: redis.Redis):
         """
@@ -62,7 +67,7 @@ class TokensMonitor:
                 token_id = token_info["id"]
 
                 # If the token does not exist, then add its data
-                if not redis.exists(token_id):
+                if not redis.exists(f"{prefix}{token_id}"):
                     try:
                         # Get the raw token history, parse its data then update the global data for that token
                         token_history_parsed = TokenMath.parse_token_data(
