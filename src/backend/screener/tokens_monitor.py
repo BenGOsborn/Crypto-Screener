@@ -149,10 +149,7 @@ class TokensMonitor:
         sorted_token_data = sorted(token_data, key=lambda x: token_data[x]["moon_score"], reverse=(
             not reverse))[start_index:end_index]
 
-        # **** What is this ???
-
-        # Format the layout of the returned token data
-        formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i,
-                      *token_data[token_id]['token_info'].values(), *token_data[token_id]['token_data']] for i, token_id in enumerate(valid_tokens)]
-
-        return formatted
+        # Index the rows and return them
+        indexed = [{"index": start_index + i + 1 if not reverse else true_num_tokens -
+                    start_index - i, **data} for i, data in enumerate(sorted_token_data)]
+        return indexed
