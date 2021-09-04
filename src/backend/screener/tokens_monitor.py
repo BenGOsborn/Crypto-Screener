@@ -131,21 +131,17 @@ class TokensMonitor:
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
         # Get the data from redis if the key matches the prefix
-        token_data = []
-        for key in self.__redis.scan_iter():
-            # Key is encoded as bytes
-            key = key.decode()
-
-            if key[:len(self.__prefix)] == self.__prefix:
-                data = json.loads(self.__redis.get(key).decode())
-                token_data.append(data)
+        _, keys = self.__redis.scan()
+        keys = [key for key in keys if key.decode()[:len(self.__prefix)]
+                == self.__prefix]
+        token_data = [json.loads(x.decode()) for x in self.__redis.mget(keys)]
 
         # Calculate the indices that are required to slice the sorted token array to get the right page
         start_index = (page_number - 1) * self.__page_size
         end_index = page_number * self.__page_size
 
         # Sort the tokens by their moon score ranking in descending order
-        sorted_token_data = sorted(token_data, key=lambda x: token_data[x]["moon_score"], reverse=(
+        sorted_token_data = sorted(token_data, key=lambda x: x["moon_score"], reverse=(
             not reverse))[start_index:end_index]
 
         # Index the rows and return them
