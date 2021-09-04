@@ -4,14 +4,14 @@ import os
 from screener.tokens_monitor import TokensMonitor
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
 # Heroku environment contains "DYNO" - if there is a "DYNO" it must be heroku, if not must be dev
 DEV = "DYNO" not in os.environ
 
 # Initialize the symbols and page sizes for dev mode and deployment mode
 if DEV:
+    # Load environment variables
+    load_dotenv()
+
     SYMBOLS_TO_MONITOR = 20
     PAGE_SIZE = 5
 
