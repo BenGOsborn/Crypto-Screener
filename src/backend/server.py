@@ -57,4 +57,4 @@ def get_page():
 
 # Start the server in the correct mode and declare the exit cleanup
 if __name__ == "__main__":
-    app.run(debug=DEV)
+    app.run(debug=DEV, host="0.0.0.0", port=os.getenv("PORT", 5000))

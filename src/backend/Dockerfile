@@ -5,4 +5,4 @@ COPY . .
 RUN pip3 install  -r requirements.txt
 
 # Start server
-CMD gunicorn server:app
+CMD python3 server.py
