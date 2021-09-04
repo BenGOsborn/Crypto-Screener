@@ -20,8 +20,8 @@ else:
     PAGE_SIZE = 50
 
 # Initialize the token monitor
-monitor = TokensMonitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
-monitor.monitor()
+# monitor = TokensMonitor(SYMBOLS_TO_MONITOR, PAGE_SIZE)
+# monitor.monitor()
 
 # Create the flask app and enable CORS
 app = Flask(__name__)
@@ -53,6 +53,12 @@ def get_page():
     assert len(data) > 0, "No data available!"
 
     return jsonify(data), 200
+
+
+@app.route("/test")
+@cross_origin()
+def test():
+    return "Hello World!"
 
 
 # Start the server in the correct mode and declare the exit cleanup
