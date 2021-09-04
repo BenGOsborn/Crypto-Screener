@@ -36,6 +36,7 @@
 
 .contentTable img {
     width: 10%;
+    border-radius: 10px;
 }
 
 .contentTable svg {
