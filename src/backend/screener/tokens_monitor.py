@@ -45,7 +45,7 @@ class TokensMonitor:
 
         # Thread log header
         header = f"Thread update: "
-        print(f"{header}Starting")
+        print(f"{header}Starting monitor")
 
         # Update the token data while this thread runs
         while True:
@@ -84,15 +84,11 @@ class TokensMonitor:
         Spawns the process which updates the token data
         """
 
-        # Log the starting of a new monitor
-        print("Initializing new instance of monitor")
-
-        # Create a new daemon thread to run the updater if this is the monitor thread
-        if self.__file.is_monitor():
-            monitor_thread = threading.Thread(
-                target=TokensMonitor.__update_token_data, args=(self.__num_tokens, self.__prefix, self.__redis))
-            monitor_thread.setDaemon(True)
-            monitor_thread.start()
+        # Create a new daemon thread and start the updater
+        monitor_thread = threading.Thread(
+            target=TokensMonitor.__update_token_data, args=(self.__num_tokens, self.__prefix, self.__redis))
+        monitor_thread.setDaemon(True)
+        monitor_thread.start()
 
     def get_page_request_info(self):
         """
