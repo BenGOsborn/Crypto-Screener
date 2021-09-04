@@ -98,21 +98,18 @@ class TokensMonitor:
         """
 
         # Set the minimum number of pages that can be returned (should always be one page)
-        page_min = 1
+        PAGE_MIN = 1
 
-        # Create an instance of the token data
-        token_data = self.__get_token_data()
-
-        # Count how many tokens there are that have data
+        # Count how many tokens there are
         true_num_tokens = 0
-        for values in token_data.values():
-            if values['init']:
+        for key in self.__redis.scan_iter():
+            if key[:len(self.__prefix)] == self.__prefix:
                 true_num_tokens += 1
 
         # Set the max number of pages given the number of tokens
         page_max = max(true_num_tokens - 1, 1) // self.__page_size + 1
 
-        return page_min, page_max, self.__page_size, true_num_tokens
+        return PAGE_MIN, page_max, self.__page_size, true_num_tokens
 
     def get_page_data(self, page_number: int, reverse: bool = False):
         """
