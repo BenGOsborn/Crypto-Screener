@@ -12,23 +12,19 @@ class TokensMonitor:
 
     :param num_tokens An integer that represents the number of tokens to monitor
     :param page_size An integer that represents the number of tokens returned per page
-    :param file_path A string that represents the file path of the temporary data sharing file
     """
 
-    def __init__(self, num_tokens, page_size):
+    def __init__(self, num_tokens: int, page_size: int):
         # Metadata for the page requests
         self.__num_tokens = num_tokens
         self.__page_size = page_size
 
         # Connect to redis
         self.__redis = redis.Redis(
-            host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"))
-
-        # Stores the data for the tokens to be shared between the updater and the file writer
-        self.__token_data = {}
+            host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"), db=0)
 
     @staticmethod
-    def __update_token_data(token_data, num_tokens, file_lock):
+    def __update_token_data(num_tokens: int, redis: redis.Redis):
         """
         Monitors and updates the token data
 
@@ -98,8 +94,8 @@ class TokensMonitor:
 
         # Create a new daemon thread to run the updater if this is the monitor thread
         if self.__file.is_monitor():
-            monitor_thread = threading.Thread(target=TokensMonitor.__update_token_data, args=(
-                self.__token_data, self.__num_tokens, self.__file))
+            monitor_thread = threading.Thread(
+                target=TokensMonitor.__update_token_data, args=(self.__num_tokens, self.__redis))
             monitor_thread.setDaemon(True)
             monitor_thread.start()
 
@@ -127,7 +123,7 @@ class TokensMonitor:
 
         return page_min, page_max, self.__page_size, true_num_tokens
 
-    def get_page_data(self, page_number, reverse=False):
+    def get_page_data(self, page_number: int, reverse: bool = False):
         """
         Get the tokens for a specific page
 
@@ -136,6 +132,8 @@ class TokensMonitor:
 
         :return An array containing the data for each token on the specified page
         """
+
+        # **** Instead of fetching the data from the memory, just fetch the data from redis
 
         # Get the page request info for accepted page numbers and number of tokens
         page_min, page_max, _, true_num_tokens = self.get_page_request_info()
