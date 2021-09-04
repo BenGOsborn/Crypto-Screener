@@ -2,7 +2,7 @@
 
 /* Table wrapper */
 .tableWrapper {
-    width: 100%;
+    width: 80%;
     margin: 0 auto;
     overflow-x: auto;
 }
@@ -93,7 +93,7 @@
 /* Pagination */
 
 .pagination {
-    width: 60%;
+    width: 40%;
     min-width: 480px;
     background-color: #15171b;
     display: flex;
