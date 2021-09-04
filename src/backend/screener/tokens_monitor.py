@@ -1,4 +1,3 @@
-from urllib.parse import urlparse
 import os
 import threading
 from time import sleep
@@ -23,9 +22,8 @@ class TokensMonitor:
         self.__prefix = prefix
 
         # Connect to redis
-        url = urlparse(os.getenv("REDIS_URL"))
-        self.__redis = redis.Redis(host=url.hostname, port=url.port, username=url.username,
-                                   password=url.password, ssl=True, ssl_cert_reqs=None)
+        self.__redis = redis.Redis(host=os.getenv("REDIS_HOST"), port=os.getenv(
+            "REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"))
 
     @staticmethod
     def __update_token_data(num_tokens: int, prefix: str, redis: redis.Redis):
