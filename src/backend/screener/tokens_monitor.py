@@ -99,7 +99,7 @@ class TokensMonitor:
 
         # Count how many tokens there are
         true_num_tokens = 0
-        for key in self.__redis.scan_iter():
+        for key in self.__redis.keys():
             # Key is encoded as bytes
             key = key.decode()
 
@@ -128,8 +128,7 @@ class TokensMonitor:
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
         # Get the data from redis if the key matches the prefix
-        _, keys = self.__redis.scan()
-        keys = [key for key in keys if key.decode()[:len(self.__prefix)]
+        keys = [key for key in self.__redis.keys() if key.decode()[:len(self.__prefix)]
                 == self.__prefix]
         token_data = [json.loads(x.decode()) for x in self.__redis.mget(keys)]
 
