@@ -94,7 +94,7 @@ class TokenMath:
 
         # ---------------------------- End of Moon Score calculations -----------------------------------------
 
-        price_changes = {f"{period}d": ((price_data[period:] / (
+        price_changes = {f"{period}h": ((price_data[period:] / (
             price_data[:-period] + EPSILON))[-1] - 1) * 100 for period in CHANGE_PERIODS}
 
         return {**price_changes, "recent_price": recent_price, "recent_volume": recent_volume, "moon_score": moon_score}

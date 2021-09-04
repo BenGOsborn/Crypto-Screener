@@ -12,8 +12,8 @@ DEV = "DYNO" not in os.environ
 
 # Initialize the symbols and page sizes for dev mode and deployment mode
 if DEV:
-    SYMBOLS_TO_MONITOR = 500
-    PAGE_SIZE = 50
+    SYMBOLS_TO_MONITOR = 20
+    PAGE_SIZE = 5
 
 else:
     SYMBOLS_TO_MONITOR = 6000

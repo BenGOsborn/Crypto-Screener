@@ -1,6 +1,5 @@
-from math import inf
+from urllib.parse import urlparse
 import os
-from sys import prefix
 import threading
 from time import sleep
 from screener.api import API
@@ -24,13 +23,9 @@ class TokensMonitor:
         self.__prefix = prefix
 
         # Connect to redis
-        self.__redis = redis.Redis(
-            host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"), db=0)
-
-        print("REDIS DETAILS FROM ENV")
-        print(os.getenv("REDIS_HOST"), os.getenv(
-            "REDIS_PORT"), os.getenv("REDIS_PASSWORD"), 0)
-        print("Hello world: " + self.__redis.exists("hello"))
+        url = urlparse(os.getenv("REDIS_URL"))
+        self.__redis = redis.Redis(host=url.hostname, port=url.port, username=url.username,
+                                   password=url.password, ssl=True, ssl_cert_reqs=None)
 
     @staticmethod
     def __update_token_data(num_tokens: int, prefix: str, redis: redis.Redis):
@@ -108,6 +103,9 @@ class TokensMonitor:
         # Count how many tokens there are
         true_num_tokens = 0
         for key in self.__redis.scan_iter():
+            # Key is encoded as bytes
+            key = key.decode()
+
             if key[:len(self.__prefix)] == self.__prefix:
                 true_num_tokens += 1
 
@@ -135,9 +133,12 @@ class TokensMonitor:
         # Get the data from redis if the key matches the prefix
         token_data = []
         for key in self.__redis.scan_iter():
+            # Key is encoded as bytes
+            key = key.decode()
+
             if key[:len(self.__prefix)] == self.__prefix:
-                token_data.append(json.loads(
-                    self.__redis.get(key[len(self.__prefix):])))
+                data = json.loads(self.__redis.get(key).decode())
+                token_data.append(data)
 
         # Calculate the indices that are required to slice the sorted token array to get the right page
         start_index = (page_number - 1) * self.__page_size
