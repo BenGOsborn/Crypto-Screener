@@ -27,22 +27,20 @@ monitor.monitor()
 app = Flask(__name__)
 cors = CORS(app)
 
-# Get the information about what can be requested to the server
-
 
 @ app.route("/api/get_pages_info", methods=['GET'], strict_slashes=False)
 @ cross_origin()
 def get_pages_info():
+    # Get the information about what can be requested to the server
     page_min, page_max, page_size, num_symbols = monitor.get_page_request_info()
 
     return jsonify({'pageMin': page_min, 'pageMax': page_max, 'pageSize': page_size, 'numSymbols': num_symbols}), 200
-
-# Get the token information from the specified page
 
 
 @ app.route("/api/get_page_data", methods=['POST'], strict_slashes=False)
 @ cross_origin()
 def get_page():
+    # Get the token information from the specified page
     form_json = request.json
 
     page_number = int(form_json['pageNumber'])
