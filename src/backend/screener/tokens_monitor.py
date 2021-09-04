@@ -130,7 +130,14 @@ class TokensMonitor:
         # Get the data from redis if the key matches the prefix
         keys = [key for key in self.__redis.keys() if key.decode()[:len(self.__prefix)]
                 == self.__prefix]
-        token_data = [json.loads(x.decode()) for x in self.__redis.mget(keys)]
+        # token_data = [json.loads(x.decode()) for x in self.__redis.mget(keys)]
+
+        token_data = []
+        for x in self.__redis.mget(keys):
+            try:
+                token_data.append(x.decode())
+            except:
+                print(f"Failed for {x}")
 
         # Calculate the indices that are required to slice the sorted token array to get the right page
         start_index = (page_number - 1) * self.__page_size
