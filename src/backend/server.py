@@ -16,7 +16,7 @@ if DEV:
     PAGE_SIZE = 5
 
 else:
-    SYMBOLS_TO_MONITOR = 6000
+    SYMBOLS_TO_MONITOR = 4000
     PAGE_SIZE = 50
 
 # Initialize the token monitor
