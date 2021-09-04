@@ -223,8 +223,8 @@ export default function CoinScreener() {
                                     </th>
                                     <th>Token name</th>
                                     <th>Token 2hr change</th>
-                                    {/* <th>Token 6hr change</th> */}
-                                    {/* <th>Token 12hr change</th> */}
+                                    <th>Token 6hr change</th>
+                                    <th>Token 12hr change</th>
                                     <th>Token 24hr change</th>
                                     <th>Token 48hr change</th>
                                     <th>Token price ($USD)</th>
@@ -234,66 +234,85 @@ export default function CoinScreener() {
                             <tbody>
                                 {pageData.map((row) => {
                                     return (
-                                        <tr>
+                                        <tr key={row.index}>
                                             {/* Row data meanings: Index, id, symbol, name, url, image, 2hr, 6hr, 12hr, 24hr, 48hr, recent price, moon score */}
                                             <th className="textLight">
-                                                {row[0]}
+                                                {row.index}
                                             </th>
                                             <td>
                                                 <span>
                                                     <a
-                                                        href={row[4]}
+                                                        href={row.url}
                                                         target="_blank"
                                                     >
                                                         <img
-                                                            src={row[5]}
-                                                            alt={row[2]}
+                                                            src={row.image}
+                                                            alt={row.name}
                                                         />
                                                     </a>
                                                 </span>
                                                 <span>
                                                     <a
                                                         className="textWhite"
-                                                        href={row[4]}
+                                                        href={row.url}
                                                         target="_blank"
                                                     >
-                                                        {row[3]}
+                                                        {row.name}
                                                     </a>
                                                 </span>
                                                 <span>
                                                     <a
                                                         className="textLight"
-                                                        href={row[4]}
+                                                        href={row.url}
                                                         target="_blank"
                                                     >
-                                                        ({row[2].toUpperCase()})
+                                                        (
+                                                        {row.symbol.toUpperCase()}
+                                                        )
                                                     </a>
                                                 </span>
                                             </td>
                                             <td
-                                                className={chooseColour(row[6])}
+                                                className={chooseColour(
+                                                    row["2h"]
+                                                )}
                                             >
-                                                {parseNumber(row[6])}%
-                                            </td>
-                                            {/* <td className={chooseColour(row[7])}>{parseNumber(row[7])}%</td> */}
-                                            {/* <td className={chooseColour(row[8])}>{parseNumber(row[8])}%</td> */}
-                                            <td
-                                                className={chooseColour(row[9])}
-                                            >
-                                                {parseNumber(row[9])}%
+                                                {parseNumber(row["2h"])}%
                                             </td>
                                             <td
                                                 className={chooseColour(
-                                                    row[10]
+                                                    row["6h"]
                                                 )}
                                             >
-                                                {parseNumber(row[10])}%
+                                                {parseNumber(row["6h"])}%
+                                            </td>
+                                            <td
+                                                className={chooseColour(
+                                                    row["12h"]
+                                                )}
+                                            >
+                                                {parseNumber(row["12h"])}%
+                                            </td>
+                                            <td
+                                                className={chooseColour(
+                                                    row["24h"]
+                                                )}
+                                            >
+                                                {parseNumber(row["24h"])}%
+                                            </td>
+                                            <td
+                                                className={chooseColour(
+                                                    row["48h"]
+                                                )}
+                                            >
+                                                {parseNumber(row["48h"])}%
                                             </td>
                                             <td className="textWhite">
-                                                ${parseNumber(row[11])}
+                                                ${parseNumber(row.recent_price)}
                                             </td>
                                             <td className="textWhite">
-                                                ${parseNumber(row[12])}
+                                                $
+                                                {parseNumber(row.recent_volume)}
                                             </td>
                                         </tr>
                                     );
