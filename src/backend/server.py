@@ -48,6 +48,7 @@ def get_page():
     page_number = int(form_json['pageNumber'])
     reverse = form_json['reverse']
 
+    # **** Also, I need to check this to make sure that it is not empty
     data = monitor.get_page_data(page_number, reverse=reverse)
 
     assert len(data) > 0, "No data available!"

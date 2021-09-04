@@ -1,4 +1,6 @@
+from math import inf
 import os
+from sys import prefix
 import threading
 from time import sleep
 from screener.api import API
@@ -15,17 +17,18 @@ class TokensMonitor:
     :param page_size An integer that represents the number of tokens returned per page
     """
 
-    def __init__(self, num_tokens: int, page_size: int):
+    def __init__(self, num_tokens: int, page_size: int, prefix: str = "TOKEN_MONITOR:"):
         # Metadata for the page requests
         self.__num_tokens = num_tokens
         self.__page_size = page_size
+        self.__prefix = prefix
 
         # Connect to redis
         self.__redis = redis.Redis(
             host=os.getenv("REDIS_HOST"), port=os.getenv("REDIS_PORT"), password=os.getenv("REDIS_PASSWORD"), db=0)
 
     @staticmethod
-    def __update_token_data(num_tokens: int, redis: redis.Redis):
+    def __update_token_data(num_tokens: int, prefix: str, redis: redis.Redis):
         """
         Monitors and updates the token data
 
@@ -67,7 +70,7 @@ class TokensMonitor:
 
                         # Combine the info about the token with the parsed data and store it in redis
                         combined_data = {**token_info, **token_history_parsed}
-                        redis.set(token_id, json.dumps(
+                        redis.set(f"{prefix}{token_id}", json.dumps(
                             combined_data), ex=TOKEN_EXPIRY)
                         print(f"{header}Updated data for token {token_id}")
 
@@ -87,7 +90,7 @@ class TokensMonitor:
         # Create a new daemon thread to run the updater if this is the monitor thread
         if self.__file.is_monitor():
             monitor_thread = threading.Thread(
-                target=TokensMonitor.__update_token_data, args=(self.__num_tokens, self.__redis))
+                target=TokensMonitor.__update_token_data, args=(self.__num_tokens, self.__prefix, self.__redis))
             monitor_thread.setDaemon(True)
             monitor_thread.start()
 
@@ -125,26 +128,28 @@ class TokensMonitor:
         :return An array containing the data for each token on the specified page
         """
 
-        # **** Instead of fetching the data from the memory, just fetch the data from redis
-
         # Get the page request info for accepted page numbers and number of tokens
         page_min, page_max, _, true_num_tokens = self.get_page_request_info()
 
         # Check that the page number is valid
         assert page_number >= page_min and page_number <= page_max, "Invalid page number!"
 
-        # Create an instance of the token data
-        token_data = self.__get_token_data()
+        # Get the data from redis if the key matches the prefix
+        token_data = []
+        for key in self.__redis.scan_iter():
+            if key[:len(self.__prefix)] == self.__prefix:
+                token_data.append(json.loads(
+                    self.__redis.get(key[len(self.__prefix):])))
 
         # Calculate the indices that are required to slice the sorted token array to get the right page
         start_index = (page_number - 1) * self.__page_size
         end_index = page_number * self.__page_size
 
-        # Sort the tokens by their moon score ranking in descending order and remove the invalid tokens
-        sorted_token_ids = sorted(
-            token_data, key=lambda x: token_data[x]['token_data'][7], reverse=(not reverse))
-        valid_tokens = [
-            token_id for token_id in sorted_token_ids if token_data[token_id]['init']][start_index:end_index]
+        # Sort the tokens by their moon score ranking in descending order
+        sorted_token_data = sorted(token_data, key=lambda x: token_data[x]["moon_score"], reverse=(
+            not reverse))[start_index:end_index]
+
+        # **** What is this ???
 
         # Format the layout of the returned token data
         formatted = [[start_index + i + 1 if not reverse else true_num_tokens - start_index - i,
