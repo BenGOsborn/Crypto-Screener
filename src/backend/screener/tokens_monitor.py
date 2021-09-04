@@ -48,7 +48,6 @@ class TokensMonitor:
         # Update the token data while this thread runs
         while True:
             # Get the token info and ids
-            print(f"{header}Updating list of tokens")
             token_info_list = api.get_token_info(num_tokens)
 
             # Iterate over each token and update its data
