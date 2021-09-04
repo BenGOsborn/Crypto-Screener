@@ -4,6 +4,7 @@ from time import sleep
 from screener.api import API
 from screener.token_math import TokenMath
 import redis
+import json
 
 
 class TokensMonitor:
@@ -35,54 +36,45 @@ class TokensMonitor:
         # Initialize a new instance of the API
         api = API()
 
-        header = f"Thread update: "
+        # Timing constants
+        TOKEN_EXPIRY = 60 * 20
+        API_COOLDOWN_REST = 0.7
 
+        # Thread log header
+        header = f"Thread update: "
         print(f"{header}Starting")
 
         # Update the token data while this thread runs
         while True:
             # Get the token info and ids
             print(f"{header}Updating list of tokens")
-            token_info = api.get_token_info(num_tokens)
-            valid_token_ids = [info['id'] for info in token_info]
-
-            # If the token id from the token data is not in the new token ids then delete it
-            for token_id in token_data.keys():
-                if token_id not in valid_token_ids:
-                    del token_data[token_id]
-
-            # If a new token id is not in the original token data then add it
-            for info in token_info:
-                token_id = info['id']
-                if token_id not in token_data.keys():
-                    token_data[token_id] = {
-                        'token_info': info, 'token_data': [-1000 for _ in range(8)], 'init': False}
+            token_info_list = api.get_token_info(num_tokens)
 
             # Iterate over each token and update its data
-            for i, token_id in enumerate(valid_token_ids):
-                sleep(0.7)
+            for token_info in token_info_list:
+                # Avoid API cooldown
+                sleep(API_COOLDOWN_REST)
 
-                try:
-                    # Get the raw token history, parse its data then update the global data for that token
-                    token_history_raw = api.get_token_history(token_id)
-                    token_history_parsed = TokenMath.parse_token_data(
-                        token_history_raw)
-                    token_data[token_id]['token_data'] = token_history_parsed
+                # Get the token ID
+                token_id = token_info["id"]
 
-                    # Init a token if it has not been init before
-                    if not token_data[token_id]['init']:
-                        token_data[token_id]['init'] = True
+                # If the token does not exist, then add its data
+                if not redis.exists(token_id):
+                    try:
+                        # Get the raw token history, parse its data then update the global data for that token
+                        token_history_parsed = TokenMath.parse_token_data(
+                            api.get_token_history(token_id))
 
-                    print(f"{header}Updated data for token {token_id}")
+                        # Combine the info about the token with the parsed data and store it in redis
+                        combined_data = {**token_info, **token_history_parsed}
+                        redis.set(token_id, json.dumps(
+                            combined_data), ex=TOKEN_EXPIRY)
+                        print(f"{header}Updated data for token {token_id}")
 
-                    # Update the file every 5 tokens
-                    if i % 5 == 0:
-                        file_lock.write(token_data)
-                        print(f"{header}Updated shared data")
-
-                except Exception as e:
-                    # Log the error message
-                    print(f"{header}Encountered exception '{e}' for {token_id}")
+                    except Exception as e:
+                        # Log the error message
+                        print(
+                            f"{header}Encountered exception '{e}' for {token_id}")
 
     def monitor(self):
         """
