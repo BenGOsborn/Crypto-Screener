@@ -1,7 +1,6 @@
 import requests
 from time import sleep
 import numpy as np
-import random
 
 
 class API:
@@ -42,7 +41,6 @@ class API:
             sleep(0.7)  # Cooldown timer to prevent the API from blocking the server
 
         token_info = token_info[:num_tokens]
-        random.shuffle(token_info)
 
         print(
             f"Got token info for {len(token_info)} tokens. Missing: {num_tokens - len(token_info)} tokens.")
